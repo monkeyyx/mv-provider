@@ -334,5 +334,13 @@
     "icon": "",
     "type": "india",
     "disabled": false
-  }
+  },
+  {
+     "display_name": "Fanbroj",
+     "value": "fanbroj",
+     "version": "1.0",
+     "icon": "https://fanbroj.net/favicon.ico",
+     "type": "global",
+     "disabled": false
+   }
 ]

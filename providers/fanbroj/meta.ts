@@ -1,0 +1,80 @@
+import { Info, ProviderContext } from "../types";
+
+export const getMetaData = async function ({
+  link,
+  provider,
+  providerContext,
+}: {
+  link: string;
+  provider: string;
+  providerContext: ProviderContext;
+}): Promise<Info> {
+  const { axios, commonHeaders } = providerContext;
+  const baseUrl = "https://fanbroj.net";
+  
+  // link format: /movies/[slug] or /series/[slug]
+  const isSeries = link.includes("/series/");
+  const slug = link.split("/").pop() || "";
+  
+  let apiUrl = "";
+  if (isSeries) {
+    apiUrl = `${baseUrl}/api/series/${slug}`;
+  } else {
+    apiUrl = `${baseUrl}/api/movies?slug=${slug}`;
+  }
+
+  try {
+    const res = await axios.get(apiUrl, {
+      headers: {
+        ...commonHeaders,
+        Referer: baseUrl,
+      },
+    });
+
+    const data = res.data;
+    if (!data) throw new Error("No data found");
+
+    const info: Info = {
+      title: data.title || "",
+      image: data.posterUrl || data.backdropUrl || "",
+      synopsis: data.overview || data.description || "",
+      imdbId: data.imdbId || "", // Might be empty, but that's okay
+      type: isSeries ? "series" : "movie",
+      rating: data.rating?.toString(),
+      cast: data.cast?.map((c: any) => c.name),
+      linkList: [],
+    };
+
+    if (isSeries) {
+      // For series, we provide an episodes link that will be handled by GetEpisodeLinks
+      info.linkList.push({
+        title: "Default",
+        episodesLink: link, // Pass the original link, GetEpisodeLinks will handle it
+      });
+    } else {
+      // For movies, we provide direct links
+      const directLinks = (data.embeds || []).map((embed: any) => ({
+        title: embed.label || "Server",
+        link: embed.url,
+        type: "movie" as const,
+      }));
+
+      info.linkList.push({
+        title: "Default",
+        directLinks,
+      });
+    }
+
+    return info;
+  } catch (error) {
+    console.error(`Fanbroj getMetaData Error: ${error}`);
+    return {
+      title: "",
+      image: "",
+      synopsis: "",
+      imdbId: "",
+      type: "movie",
+      linkList: [],
+    };
+  }
+};

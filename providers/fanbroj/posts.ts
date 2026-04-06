@@ -1,0 +1,99 @@
+import { Post, ProviderContext } from "../types";
+
+export const getPosts = async function ({
+  filter,
+  page,
+  providerValue,
+  signal,
+  providerContext,
+}: {
+  filter: string;
+  page: number;
+  providerValue: string;
+  signal: AbortSignal;
+  providerContext: ProviderContext;
+}): Promise<Post[]> {
+  const { axios, commonHeaders } = providerContext;
+  const baseUrl = "https://fanbroj.net";
+
+  // The API endpoint differs for movies and series
+  const isSeries = filter === "/tv-shows" || filter === "/anime" ? true : false;
+  const isGenre = filter.startsWith("genre:");
+  
+  let apiUrl = "";
+  if (isGenre) {
+    const genreName = filter.replace("genre:", "");
+    apiUrl = `${baseUrl}/api/movies?page=${page}&genres=${genreName}`;
+  } else {
+    apiUrl = isSeries 
+      ? `${baseUrl}/api/series?page=${page}` 
+      : `${baseUrl}/api/movies?page=${page}`;
+  }
+
+  try {
+    const res = await axios.get(apiUrl, {
+      headers: {
+        ...commonHeaders,
+        Referer: baseUrl,
+      },
+      signal,
+    });
+
+    const data = res.data;
+    if (!data) return [];
+    
+    // Movies API returns { movies: [...] }, Series API returns [...]
+    const items = isSeries ? data : (data.movies || []);
+
+    return items.map((item: any) => ({
+      title: item.title,
+      image: item.posterUrl || item.backdropUrl,
+      link: isSeries ? `/series/${item.slug}` : `/movies/${item.slug}`,
+      provider: providerValue,
+    }));
+  } catch (error) {
+    console.error(`Fanbroj getPosts Error: ${error}`);
+    return [];
+  }
+};
+
+export const getSearchPosts = async function ({
+  searchQuery,
+  page,
+  providerValue,
+  signal,
+  providerContext,
+}: {
+  searchQuery: string;
+  page: number;
+  providerValue: string;
+  signal: AbortSignal;
+  providerContext: ProviderContext;
+}): Promise<Post[]> {
+  const { axios, commonHeaders } = providerContext;
+  const baseUrl = "https://fanbroj.net";
+  const apiUrl = `${baseUrl}/api/search?q=${encodeURIComponent(searchQuery)}&page=${page}`;
+
+  try {
+    const res = await axios.get(apiUrl, {
+      headers: {
+        ...commonHeaders,
+        Referer: baseUrl,
+      },
+      signal,
+    });
+
+    const data = res.data;
+    if (!data || !data.results) return [];
+
+    return data.results.map((item: any) => ({
+      title: item.title,
+      image: item.posterUrl || item.backdropUrl,
+      link: `/movies/${item.slug}`,
+      provider: providerValue,
+    }));
+  } catch (error) {
+    console.error(`Fanbroj getSearchPosts Error: ${error}`);
+    return [];
+  }
+};
