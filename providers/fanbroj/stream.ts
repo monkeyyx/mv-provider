@@ -47,14 +47,14 @@ export const getStream = async function ({
     }
 
     const streams: Stream[] = [];
-    const videoUrl = data.videoSource;
+    const videoUrl = data.securedLink || data.videoSource;
 
     // The videoSource is usually a .txt manifest which is actually an M3U8.
     // We need to pass the headers (UA & Referer) to the player so it can fetch segments.
     streams.push({
       server: "Fire-HLS",
       link: videoUrl,
-      type: "hls",
+      type: "m3u8",
       quality: "1080",
       headers: {
         Referer: host + "/", // Important for segment access
