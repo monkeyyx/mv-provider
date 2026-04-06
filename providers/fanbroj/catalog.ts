@@ -10,14 +10,6 @@ export const catalog: Catalog[] = [
     filter: "/tv-shows",
   },
   {
-    title: "Anime",
-    filter: "/anime",
-  },
-  {
-    title: "Most Viewed",
-    filter: "/top-imdb",
-  },
-  {
     title: "Af-Somali (Dubbed)",
     filter: "tag:AfSomali",
   },

@@ -1,5 +1,7 @@
 import { Info, ProviderContext } from "../types";
 
+const DEFAULT_IMAGE = "https://placehold.jp/24/363636/ffffff/500x750.png?text=Fanbroj";
+
 export const getMeta = async function ({
   link,
   provider,
@@ -38,7 +40,7 @@ export const getMeta = async function ({
 
     const info: Info = {
       title: data.title || "",
-      image: data.posterUrl || data.backdropUrl || "",
+      image: data.posterUrl || data.backdropUrl || DEFAULT_IMAGE,
       synopsis: data.overview || data.description || "",
       imdbId: data.imdbId || "", // Might be empty, but that's okay
       type: isSeries ? "series" : "movie",

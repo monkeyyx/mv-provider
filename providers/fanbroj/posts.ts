@@ -1,5 +1,7 @@
 import { Post, ProviderContext } from "../types";
 
+const DEFAULT_IMAGE = "https://placehold.jp/24/363636/ffffff/500x750.png?text=Fanbroj";
+
 export const getPosts = async function ({
   filter,
   searchQuery,
@@ -31,7 +33,7 @@ export const getPosts = async function ({
   const baseUrl = "https://fanbroj.net";
 
   // The API endpoint differs for movies and series
-  const isSeries = filter === "/tv-shows" || filter === "/anime" ? true : false;
+  const isSeries = filter === "/tv-shows";
   const isGenre = filter.startsWith("genre:");
   const isTag = filter.startsWith("tag:");
 
@@ -65,7 +67,7 @@ export const getPosts = async function ({
 
     return items.map((item: any) => ({
       title: item.title,
-      image: item.posterUrl || item.backdropUrl,
+      image: item.posterUrl || item.backdropUrl || DEFAULT_IMAGE,
       link: isSeries ? `/series/${item.slug}` : `/movies/${item.slug}`,
       provider: providerValue,
     }));
@@ -110,7 +112,7 @@ const getSearchPosts = async function ({
       data.movies.forEach((item: any) => {
         searchResults.push({
           title: item.title,
-          image: item.posterUrl || item.backdropUrl || "",
+          image: item.posterUrl || item.backdropUrl || DEFAULT_IMAGE,
           link: `/movies/${item.slug}`,
           provider: providerValue,
         });
@@ -121,7 +123,7 @@ const getSearchPosts = async function ({
       data.series.forEach((item: any) => {
         searchResults.push({
           title: item.title,
-          image: item.posterUrl || item.backdropUrl || "",
+          image: item.posterUrl || item.backdropUrl || DEFAULT_IMAGE,
           link: `/series/${item.slug}`,
           provider: providerValue,
         });
