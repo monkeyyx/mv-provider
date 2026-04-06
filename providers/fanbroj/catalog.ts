@@ -20,6 +20,7 @@ export const catalogs: Catalog[] = [
 ];
 
 export const genres: Catalog[] = [
+  { title: "Animation", filter: "genre:Animation" },
   { title: "Action", filter: "genre:Action" },
   { title: "Thriller", filter: "genre:Thriller" },
   { title: "Drama", filter: "genre:Drama" },
