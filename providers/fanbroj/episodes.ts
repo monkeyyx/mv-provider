@@ -1,6 +1,6 @@
 import { EpisodeLink, ProviderContext } from "../types";
 
-export const getEpisodeLinks = async function ({
+export const getEpisodes = async function ({
   url,
   providerContext,
 }: {

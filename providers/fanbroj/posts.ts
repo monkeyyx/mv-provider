@@ -2,17 +2,31 @@ import { Post, ProviderContext } from "../types";
 
 export const getPosts = async function ({
   filter,
+  searchQuery,
   page,
   providerValue,
   signal,
   providerContext,
 }: {
-  filter: string;
+  filter?: string;
+  searchQuery?: string;
   page: number;
   providerValue: string;
   signal: AbortSignal;
   providerContext: ProviderContext;
 }): Promise<Post[]> {
+  if (searchQuery) {
+    return getSearchPosts({
+      searchQuery,
+      page,
+      providerValue,
+      signal,
+      providerContext,
+    });
+  }
+
+  if (!filter) return [];
+
   const { axios, commonHeaders } = providerContext;
   const baseUrl = "https://fanbroj.net";
 
@@ -20,7 +34,7 @@ export const getPosts = async function ({
   const isSeries = filter === "/tv-shows" || filter === "/anime" ? true : false;
   const isGenre = filter.startsWith("genre:");
   const isTag = filter.startsWith("tag:");
-  
+
   let apiUrl = "";
   if (isGenre) {
     const genreName = filter.replace("genre:", "");
@@ -29,8 +43,8 @@ export const getPosts = async function ({
     const tagName = filter.replace("tag:", "");
     apiUrl = `${baseUrl}/api/movies?page=${page}&tags=${tagName}`;
   } else {
-    apiUrl = isSeries 
-      ? `${baseUrl}/api/series?page=${page}` 
+    apiUrl = isSeries
+      ? `${baseUrl}/api/series?page=${page}`
       : `${baseUrl}/api/movies?page=${page}`;
   }
 
@@ -45,7 +59,7 @@ export const getPosts = async function ({
 
     const data = res.data;
     if (!data) return [];
-    
+
     // Movies API returns { movies: [...] }, Series API returns [...]
     const items = isSeries ? data : (data.movies || []);
 
@@ -61,7 +75,7 @@ export const getPosts = async function ({
   }
 };
 
-export const getSearchPosts = async function ({
+const getSearchPosts = async function ({
   searchQuery,
   page,
   providerValue,
@@ -120,3 +134,4 @@ export const getSearchPosts = async function ({
     return [];
   }
 };
+
