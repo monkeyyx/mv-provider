@@ -19,11 +19,15 @@ export const getPosts = async function ({
   // The API endpoint differs for movies and series
   const isSeries = filter === "/tv-shows" || filter === "/anime" ? true : false;
   const isGenre = filter.startsWith("genre:");
+  const isTag = filter.startsWith("tag:");
   
   let apiUrl = "";
   if (isGenre) {
     const genreName = filter.replace("genre:", "");
     apiUrl = `${baseUrl}/api/movies?page=${page}&genres=${genreName}`;
+  } else if (isTag) {
+    const tagName = filter.replace("tag:", "");
+    apiUrl = `${baseUrl}/api/movies?page=${page}&tags=${tagName}`;
   } else {
     apiUrl = isSeries 
       ? `${baseUrl}/api/series?page=${page}` 

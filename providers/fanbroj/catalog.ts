@@ -17,6 +17,10 @@ export const catalogs: Catalog[] = [
     title: "Most Viewed",
     filter: "/top-imdb",
   },
+  {
+    title: "Af-Somali (Dubbed)",
+    filter: "tag:AfSomali",
+  },
 ];
 
 export const genres: Catalog[] = [
