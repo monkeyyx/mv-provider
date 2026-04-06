@@ -9,3 +9,13 @@ scrape-counts.js
 test-govix-az.js
 .vercel
 .env*.local
+verify_*.js
+implementation_plan.md
+task.md
+walkthrough.md
+.gemini
+.agents
+.brain
+.system_generated
+fanbroj_security_report.md
+

@@ -88,14 +88,33 @@ export const getSearchPosts = async function ({
     });
 
     const data = res.data;
-    if (!data || !data.results) return [];
+    if (!data) return [];
 
-    return data.results.map((item: any) => ({
-      title: item.title,
-      image: item.posterUrl || item.backdropUrl,
-      link: `/movies/${item.slug}`,
-      provider: providerValue,
-    }));
+    const searchResults: Post[] = [];
+
+    if (data.movies && Array.isArray(data.movies)) {
+      data.movies.forEach((item: any) => {
+        searchResults.push({
+          title: item.title,
+          image: item.posterUrl || item.backdropUrl || "",
+          link: `/movies/${item.slug}`,
+          provider: providerValue,
+        });
+      });
+    }
+
+    if (data.series && Array.isArray(data.series)) {
+      data.series.forEach((item: any) => {
+        searchResults.push({
+          title: item.title,
+          image: item.posterUrl || item.backdropUrl || "",
+          link: `/series/${item.slug}`,
+          provider: providerValue,
+        });
+      });
+    }
+
+    return searchResults;
   } catch (error) {
     console.error(`Fanbroj getSearchPosts Error: ${error}`);
     return [];
