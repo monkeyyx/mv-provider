@@ -47,7 +47,7 @@ export const getMeta = async function ({
       });
     if (links.length === 0) {
       $(
-        ".ep-button-container:not(:has(a:contains('Click Here To Visit')))"
+        ".ep-button-container:not(:has(a:contains('Click Here To Visit')))",
       ).map((i, element) => {
         let title = $(element)
           .find("a")

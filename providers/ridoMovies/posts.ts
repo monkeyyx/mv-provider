@@ -60,7 +60,7 @@ export const getSearchPosts = async function ({
     }
     const catalog: Post[] = [];
     const url2 = `https://v3-cinemeta.strem.io/catalog/movie/top/search=${encodeURI(
-      searchQuery
+      searchQuery,
     )}.json`;
     const res2 = await axios.get(url2, { headers, signal });
     const data2 = res2.data;

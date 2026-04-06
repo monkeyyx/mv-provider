@@ -60,10 +60,10 @@ export const getSearchPosts = async function ({
     }
     const catalog: Post[] = [];
     const url1 = `https://v3-cinemeta.strem.io/catalog/series/top/search=${encodeURI(
-      searchQuery
+      searchQuery,
     )}.json`;
     const url2 = `https://v3-cinemeta.strem.io/catalog/movie/top/search=${encodeURI(
-      searchQuery
+      searchQuery,
     )}.json`;
     const res = await providerContext.axios.get(url1, {
       headers: providerContext.commonHeaders,

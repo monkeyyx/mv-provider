@@ -23,7 +23,7 @@ export const getEpisodes = function ({
 
       container.find("h4, h3").each((_, element) => {
         const el = $(element);
-        let title = el.text().replace(/[-:]/g, "").trim();
+        const title = el.text().replace(/[-:]/g, "").trim();
         if (!title) return;
 
         // Saare V-Cloud links fetch

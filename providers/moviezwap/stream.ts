@@ -17,7 +17,7 @@ export async function getStream({
   const Streams: Stream[] = [];
 
   // Find the actual .mp4 download link
-  let downloadLink = null;
+  const downloadLink = null;
   $('a:contains("Fast Download Server")').each((i, el) => {
     const href = $(el).attr("href");
     if (href && href.toLocaleLowerCase().includes(".mp4")) {

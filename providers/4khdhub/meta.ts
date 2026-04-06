@@ -27,7 +27,7 @@ export const getMeta = async function ({
     if (type === "series") {
       $(".season-item").map((i, element) => {
         const title = $(element).find(".episode-title").text();
-        let directLinks: Link["directLinks"] = [];
+        const directLinks: Link["directLinks"] = [];
         $(element)
           .find(".episode-download-item")
           .map((i, element) => {

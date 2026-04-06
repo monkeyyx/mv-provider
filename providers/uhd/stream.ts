@@ -28,7 +28,7 @@ export const getStream = async ({
 }): Promise<Stream[]> => {
   try {
     const { axios, cheerio } = providerContext;
-    let downloadLink = await modExtractor(url, providerContext);
+    const downloadLink = await modExtractor(url, providerContext);
 
     // console.log(downloadLink.data);
 
@@ -196,7 +196,7 @@ const isDriveLink = async (ddl: string) => {
     const driveLeach = await fetch(ddl);
     const driveLeachData = await driveLeach.text();
     const pathMatch = driveLeachData.match(
-      /window\.location\.replace\("([^"]+)"\)/
+      /window\.location\.replace\("([^"]+)"\)/,
     );
     const path = pathMatch?.[1];
     const mainUrl = ddl.split("/")[2];
@@ -211,7 +211,7 @@ async function modExtractor(url: string, providerContext: ProviderContext) {
   const { axios, cheerio } = providerContext;
   try {
     const wpHttp = url.split("sid=")[1];
-    var bodyFormData0 = new FormData();
+    const bodyFormData0 = new FormData();
     bodyFormData0.append("_wp_http", wpHttp);
     const res = await fetch(url.split("?")[0], {
       method: "POST",
@@ -228,7 +228,7 @@ async function modExtractor(url: string, providerContext: ProviderContext) {
     // console.log('wpHttp2', wpHttp2);
 
     // form data
-    var bodyFormData = new FormData();
+    const bodyFormData = new FormData();
     bodyFormData.append("_wp_http2", wpHttp2);
     const formUrl1 = $("form").attr("action");
     const formUrl = formUrl1 || url.split("?")[0];

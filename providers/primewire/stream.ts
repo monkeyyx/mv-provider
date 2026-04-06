@@ -56,13 +56,13 @@ export const getStream = async function ({
 
       // let MDCore: any = {};
       // Step 1: Extract the function parameters and the encoded string
-      var functionRegex =
+      const functionRegex =
         /eval\(function\((.*?)\)\{.*?return p\}.*?\('(.*?)'\.split/;
-      var match = functionRegex.exec(data3);
+      const match = functionRegex.exec(data3);
       let p = "";
       if (match) {
         // var params = match[1].split(',').map(param => param.trim());
-        var encodedString = match[2];
+        const encodedString = match[2];
         console.log("Encoded String:", encodedString);
 
         // console.log('Parameters:', params);
@@ -71,14 +71,17 @@ export const getStream = async function ({
         const base = Number(
           encodedString.split(",'|MDCore|")[0].split(",")[
             encodedString.split(",'|MDCore|")[0].split(",").length - 1
-          ]
+          ],
         );
         console.log("Base:", base);
 
         p = encodedString.split(`',${base},`)?.[0].trim();
-        let a = base;
-        let c = encodedString.split(`',${base},`)[1].slice(2).split("|").length;
-        let k = encodedString.split(`',${base},`)[1].slice(2).split("|");
+        const a = base;
+        const c = encodedString
+          .split(`',${base},`)[1]
+          .slice(2)
+          .split("|").length;
+        const k = encodedString.split(`',${base},`)[1].slice(2).split("|");
 
         // console.log('p:', p);
         // console.log('a:', a);
@@ -91,7 +94,7 @@ export const getStream = async function ({
           c: any,
           k: any,
           e: any,
-          d: any
+          d: any,
         ) {
           e = function (c: any) {
             return c.toString(36);

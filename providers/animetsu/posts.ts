@@ -37,7 +37,7 @@ export const getSearchPosts = async function ({
   const { axios } = providerContext;
   const baseUrl = "https://backend.animetsu.to";
   const url = `${baseUrl}/api/anime/search?query=${encodeURIComponent(
-    searchQuery
+    searchQuery,
   )}&page=${page}&perPage=35&year=any&sort=favourites&season=any&format=any&status=any`;
 
   return posts({ url, signal, axios });

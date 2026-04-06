@@ -18,7 +18,12 @@ export async function getEpisodeLinks({
       const href = ($el.attr("href") || "").trim();
       const text = $el.text().trim();
 
-      if (href && (text.includes("Episode") || /E\d+/i.test(text) || href.includes("vcloud.lol"))) {
+      if (
+        href &&
+        (text.includes("Episode") ||
+          /E\d+/i.test(text) ||
+          href.includes("vcloud.lol"))
+      ) {
         let epNum = text.match(/E\d+/i)?.[0] || text;
         if (/^\d+$/.test(epNum)) epNum = `Episode ${epNum}`;
         episodes.push({

@@ -1,6 +1,6 @@
 import { EpisodeLink, ProviderContext } from "../types";
 
-// यहाँ `getEpisodes` फ़ंक्शन मान रहा है कि यह उस पेज को स्क्रैप कर रहा है 
+// यहाँ `getEpisodes` फ़ंक्शन मान रहा है कि यह उस पेज को स्क्रैप कर रहा है
 // जो 'Download Links' बटन से प्राप्त हुआ है (जैसे m4ulinks.com/number/42882)
 
 export const getEpisodes = async function ({
@@ -23,38 +23,38 @@ export const getEpisodes = async function ({
       },
     });
     const $ = cheerio.load(res.data);
-    const container = $(".entry-content,.entry-inner, .download-links-div"); 
-    
+    const container = $(".entry-content,.entry-inner, .download-links-div");
+
     // .unili-content,.code-block-1 जैसे अवांछित तत्वों को हटा दें
-    $(".unili-content,.code-block-1").remove(); 
-    
+    $(".unili-content,.code-block-1").remove();
+
     const episodes: EpisodeLink[] = [];
 
     // HubCloud Links को लक्षित करने के लिए:
     // 1. Episode Title (h5) से शुरू करें
     // 2. उसके बाद के downloads-btns-div में HubCloud बटन खोजें
-    
+
     container.find("h5").each((index, element) => {
       const el = $(element);
       const title = el.text().trim(); // e.g., "-:Episodes: 1:- (Grand Premiere)"
-      
+
       // HubCloud लिंक को विशिष्ट स्टाइल और टेक्स्ट से खोजें
       // बटन सेलेक्टर: style="background: linear-gradient(135deg,#e629d0,#007bff);color: white;"
       const hubCloudLink = el
         .next(".downloads-btns-div")
         .find(
-          'a[style*="background: linear-gradient(135deg,#e629d0,#007bff);"]'
+          'a[style*="background: linear-gradient(135deg,#e629d0,#007bff);"]',
         )
         .attr("href");
 
       if (title && hubCloudLink) {
         // टाइटल को साफ़ करें (e.g., सिर्फ़ Episode 1: Grand Premiere रखें)
-        const cleanedTitle = title.replace(/[-:]/g, "").trim(); 
-        
-        episodes.push({ 
-            title: cleanedTitle, 
-            link: hubCloudLink, 
-            // यदि यह HubCloud/Streaming लिंक है, तो आप 'type' को यहाँ 'stream' भी सेट कर सकते हैं
+        const cleanedTitle = title.replace(/[-:]/g, "").trim();
+
+        episodes.push({
+          title: cleanedTitle,
+          link: hubCloudLink,
+          // यदि यह HubCloud/Streaming लिंक है, तो आप 'type' को यहाँ 'stream' भी सेट कर सकते हैं
         });
       }
     });

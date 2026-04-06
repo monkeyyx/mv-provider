@@ -20,7 +20,7 @@ const headers = {
 
 export async function fetchEpisodesFromSelectedLink(
   url: string,
-  providerContext: ProviderContext
+  providerContext: ProviderContext,
 ): Promise<Episode[]> {
   const { axios, cheerio } = providerContext;
   const res = await axios.get(url, { headers });
@@ -120,7 +120,7 @@ export const getMeta = async function ({
       const txt = $(el).text().trim();
       if (
         txt.match(
-          /drama|biography|action|thriller|romance|adventure|animation/i
+          /drama|biography|action|thriller|romance|adventure|animation/i,
         )
       )
         tags.push(txt);

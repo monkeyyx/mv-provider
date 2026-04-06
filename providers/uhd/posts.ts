@@ -65,7 +65,7 @@ async function posts(
   baseURL: string,
   url: string,
   signal: AbortSignal,
-  providerContext: ProviderContext
+  providerContext: ProviderContext,
 ): Promise<Post[]> {
   try {
     const { axios, cheerio } = providerContext;

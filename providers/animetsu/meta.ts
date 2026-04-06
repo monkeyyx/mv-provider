@@ -29,7 +29,7 @@ export const getMeta = async function ({
         data.coverImage?.medium ||
         "",
       tags: [data?.format, data?.status, ...(data?.genres || [])].filter(
-        Boolean
+        Boolean,
       ),
       imdbId: "",
       type: data.format === "MOVIE" ? "movie" : "series",

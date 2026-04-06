@@ -38,19 +38,19 @@ export const getStream = async function ({
       const fastilinksData = fastilinksRes.data;
       const $$ = cheerio.load(fastilinksData);
       const fastilinksKey = $$(
-        'input[name="_csrf_token_645a83a41868941e4692aa31e7235f2"]'
+        'input[name="_csrf_token_645a83a41868941e4692aa31e7235f2"]',
       ).attr("value");
       console.log("fastilinksKey", fastilinksKey);
       const fastilinksFormData = new FormData();
       fastilinksFormData.append(
         "_csrf_token_645a83a41868941e4692aa31e7235f2",
-        fastilinksKey || ""
+        fastilinksKey || "",
       );
       console.log(
         "fastilinksFormData",
         fastilinksFormData,
         "fastilinksUrl",
-        url
+        url,
       );
       const fastilinksRes2 = await fetch(url, {
         method: "POST",
@@ -97,7 +97,7 @@ export const getStream = async function ({
           },
           body: null,
           method: "GET",
-        }
+        },
       );
       const photolinxData = await photolinxRes.text();
       const $$$ = cheerio.load(photolinxData);
@@ -169,12 +169,12 @@ export const getStream = async function ({
     } catch (err) {
       console.log(
         "error in world4uGetStream",
-        err instanceof Error ? err.message : err
+        err instanceof Error ? err.message : err,
       );
     }
 
     // console.log('streamRes', streamRes);
-    let $ = cheerio.load(html);
+    const $ = cheerio.load(html);
     // console.log('data', html);
     const mediafireUrl =
       $('h1:contains("Download")').find("a").attr("href") ||
@@ -213,7 +213,7 @@ export const getStream = async function ({
         console.log("href", href);
 
         // If a match is found, return the URL; otherwise return null
-        let downloadLInk = href?.startsWith("https://") ? href : null;
+        const downloadLInk = href?.startsWith("https://") ? href : null;
         console.log("downloadLInk", downloadLInk);
 
         if (downloadLInk) {
@@ -248,7 +248,7 @@ export const getStream = async function ({
       const repairLink = $("#continue-btn").attr("href");
       console.log("repairLink", "https://www.mediafire.com" + repairLink);
       const repairRequireRepairRes = await fetch(
-        "https://www.mediafire.com" + repairLink
+        "https://www.mediafire.com" + repairLink,
       );
       const $$ = cheerio.load(await repairRequireRepairRes.text());
       const repairDownloadLink = $$(".input.popsok").attr("href");

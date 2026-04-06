@@ -12,7 +12,7 @@ export const getEpisodes = async function ({
     const baseUrl = url?.split("/").slice(0, 3).join("/");
     const res = await axios.get(url);
     const html = res.data;
-    let $ = cheerio.load(html);
+    const $ = cheerio.load(html);
     const episodeLinks: EpisodeLink[] = [];
 
     $('.file-entry:not(:contains("Parent Directory"))').map((i, element) => {

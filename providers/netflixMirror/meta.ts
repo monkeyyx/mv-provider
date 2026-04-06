@@ -5,12 +5,12 @@ export const getMeta = async function ({
 }: {
   link: string;
 }): Promise<Info> {
-  let providerValue = "netflixMirror";
+  const providerValue = "netflixMirror";
   try {
     const isPrime =
       providerValue === "primeMirror" ? "isPrime=true" : "isPrime=false";
     const url = `https://netmirror.8man.dev/api/net-proxy?${isPrime}&url=${encodeURIComponent(
-      link
+      link,
     )}`;
     console.log("nfifo", url);
     const res = await fetch(url, {

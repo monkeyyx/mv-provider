@@ -22,7 +22,7 @@ export const getMeta = async function ({
 
     const links: Link[] = [];
     let directLinks: EpisodeLink[] = [];
-    let season = new Map();
+    const season = new Map();
     if (meta.type === "series") {
       data?.meta?.videos?.map((video: any) => {
         if (video?.season <= 0) return;

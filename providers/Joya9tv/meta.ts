@@ -65,7 +65,7 @@ export const getMeta = async function ({
     // Check for 'S' or 'Season' in the main heading
     if (
       /S\d+|Season \d+|TV Series\/Shows/i.test(
-        infoContainer.find("h1").text() + $(".sgeneros").text()
+        infoContainer.find("h1").text() + $(".sgeneros").text(),
       )
     ) {
       result.type = "series";

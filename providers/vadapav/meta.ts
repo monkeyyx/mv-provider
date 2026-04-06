@@ -33,7 +33,7 @@ export const getMeta = async function ({
             title: $(element).text(),
           });
         }
-      }
+      },
     );
     const directLinks: EpisodeLink[] = [];
     $('.file-entry:not(:contains("Parent Directory"))').map((i, element) => {

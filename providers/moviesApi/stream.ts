@@ -59,7 +59,7 @@ export const mpGetStream = async function ({
         {
           method: "POST",
           body: contents,
-        }
+        },
       );
       const finalData = await res2.json();
       const subtitle: TextTracks = finalData?.subtitles?.map((sub: any) => ({

@@ -39,7 +39,7 @@ export const getSearchPosts = async function ({
   const hash = await getSHA256ofJSON(searchQuery + "JyjId97F9PVqUPuMO0");
   const url = `${baseUrl}/filter?s=${searchQuery}&page=${page}&ds=${hash.slice(
     0,
-    10
+    10,
   )}`;
   return posts({ baseUrl, url, signal, axios, cheerio });
 };

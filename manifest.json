@@ -1,5 +1,13 @@
 [
   {
+    "display_name": "GovixTV",
+    "value": "govixtv",
+    "version": "1.0",
+    "icon": "https://www.govixtv.com/favicon.ico",
+    "type": "global",
+    "disabled": false
+  },
+  {
     "display_name": "VegaMovies",
     "value": "vega",
     "version": "2.3",

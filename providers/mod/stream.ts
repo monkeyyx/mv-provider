@@ -87,7 +87,7 @@ export const getStream = async function ({
       url = servers[0].link || url;
     }
 
-    let downloadLink = await modExtractor(url, providerContext);
+    const downloadLink = await modExtractor(url, providerContext);
 
     // console.log(downloadLink.data);
 
@@ -106,12 +106,12 @@ export const getStream = async function ({
       const resumeBot = $drive(".btn.btn-light").attr("href") || "";
       const resumeBotRes = await axios.get(resumeBot, { headers });
       const resumeBotToken = resumeBotRes.data.match(
-        /formData\.append\('token', '([a-f0-9]+)'\)/
+        /formData\.append\('token', '([a-f0-9]+)'\)/,
       )[1];
       const resumeBotBody = new FormData();
       resumeBotBody.append("token", resumeBotToken);
       const resumeBotPath = resumeBotRes.data.match(
-        /fetch\('\/download\?id=([a-zA-Z0-9\/+]+)'/
+        /fetch\('\/download\?id=([a-zA-Z0-9\/+]+)'/,
       )[1];
       const resumeBotBaseUrl = resumeBot.split("/download")[0];
       // console.log(
@@ -129,7 +129,7 @@ export const getStream = async function ({
             Referer: resumeBot,
             Cookie: "PHPSESSID=7e9658ce7c805dab5bbcea9046f7f308",
           },
-        }
+        },
       );
       const resumeBotDownloadData = await resumeBotDownload.json();
       console.log("resumeBotDownloadData", resumeBotDownloadData.url);
@@ -276,7 +276,7 @@ const isDriveLink = async (ddl: string) => {
     const driveLeach = await fetch(ddl);
     const driveLeachData = await driveLeach.text();
     const pathMatch = driveLeachData.match(
-      /window\.location\.replace\("([^"]+)"\)/
+      /window\.location\.replace\("([^"]+)"\)/,
     );
     const path = pathMatch?.[1];
     const mainUrl = ddl.split("/")[2];
@@ -291,7 +291,7 @@ async function modExtractor(url: string, providerContext: ProviderContext) {
   const { axios, cheerio } = providerContext;
   try {
     const wpHttp = url.split("sid=")[1];
-    var bodyFormData0 = new FormData();
+    const bodyFormData0 = new FormData();
     bodyFormData0.append("_wp_http", wpHttp);
     const res = await fetch(url.split("?")[0], {
       method: "POST",
@@ -308,7 +308,7 @@ async function modExtractor(url: string, providerContext: ProviderContext) {
     console.log("wpHttp2", wpHttp2);
 
     // form data
-    var bodyFormData = new FormData();
+    const bodyFormData = new FormData();
     bodyFormData.append("_wp_http2", wpHttp2);
     const formUrl1 = $("form").attr("action");
     const formUrl = formUrl1 || url.split("?")[0];

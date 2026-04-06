@@ -112,7 +112,7 @@ async function fetchPosts({
       if (!title) return;
 
       // Image
-      let img =
+      const img =
         card.find("img").attr("data-src") ||
         card.find("img").attr("bv-data-src") ||
         card.find("img").attr("src") ||

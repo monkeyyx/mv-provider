@@ -81,7 +81,7 @@ export const getStream = async function ({
         } catch (e) {
           console.log(`Error with server ${server}:`, e);
         }
-      })
+      }),
     );
 
     // Try dub version as well
@@ -145,7 +145,7 @@ export const getStream = async function ({
         } catch (e) {
           console.log(`Error with server ${server} (dub):`, e);
         }
-      })
+      }),
     );
 
     console.log("Stream links:", streamLinks);

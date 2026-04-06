@@ -8,7 +8,7 @@ export const getEpisodes = async function ({
   providerContext: ProviderContext;
 }): Promise<EpisodeLink[]> {
   const { getBaseUrl, axios } = providerContext;
-  let providerValue = "netflixMirror";
+  const providerValue = "netflixMirror";
   try {
     const baseUrl = await getBaseUrl("nfMirror");
     const url =

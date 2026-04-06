@@ -32,8 +32,8 @@ export const getMeta = async function ({
     // 3. Info table
     let synopsis = "";
     let imdbId = "";
-    let type = "movie";
-    let infoRows: string[] = [];
+    const type = "movie";
+    const infoRows: string[] = [];
     $("td:contains('Movie Information')")
       .parent()
       .nextAll("tr")
@@ -66,7 +66,7 @@ export const getMeta = async function ({
             directLinks: [{ title: "Movie", link: baseUrl + downloadPage }],
           });
         }
-      }
+      },
     );
 
     $("img[src*='/images/play.png']").each((i, el) => {

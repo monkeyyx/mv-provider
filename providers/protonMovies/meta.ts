@@ -51,7 +51,7 @@ export const getMeta = async function ({
     const $ = cheerio.load(html);
 
     const title = $(
-      ".trending-text.fw-bold.texture-text.text-uppercase.my-0.fadeInLeft.animated.d-inline-block"
+      ".trending-text.fw-bold.texture-text.text-uppercase.my-0.fadeInLeft.animated.d-inline-block",
     ).text();
     const image = $("#thumbnail").attr("src");
     const type = link.includes("series") ? "series" : "movie";
@@ -74,7 +74,7 @@ export const getMeta = async function ({
       $("#episodes")
         .children()
         .map((i, element) => {
-          let directLinks: EpisodeLink[] = [];
+          const directLinks: EpisodeLink[] = [];
           $(element)
             .find(".episode-block")
             .map((j, ep) => {

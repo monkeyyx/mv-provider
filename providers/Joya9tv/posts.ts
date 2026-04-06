@@ -104,10 +104,10 @@ async function fetchPosts({
       link = resolveUrl(link);
       if (seen.has(link)) return;
 
-      let title = card.find("div.data h3 a").text().trim();
+      const title = card.find("div.data h3 a").text().trim();
       if (!title) return;
 
-      let img = card.find("div.poster img").attr("src") || "";
+      const img = card.find("div.poster img").attr("src") || "";
       const image = img ? resolveUrl(img) : "";
 
       seen.add(link);
@@ -128,7 +128,7 @@ async function fetchPosts({
       title = title.trim();
       if (!title) return;
 
-      let img = card.find("img").attr("src") || "";
+      const img = card.find("img").attr("src") || "";
       const image = img ? resolveUrl(img) : "";
 
       seen.add(link);
@@ -141,7 +141,7 @@ async function fetchPosts({
   } catch (err) {
     console.error(
       "fetchPosts error:",
-      err instanceof Error ? err.message : String(err)
+      err instanceof Error ? err.message : String(err),
     );
     return [];
   }

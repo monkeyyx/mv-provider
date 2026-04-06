@@ -25,7 +25,7 @@ export const getEpisodes = async function ({
               "Content-Type": "application/json",
             },
             body: JSON.stringify({ url }),
-          }
+          },
         );
         const redirectUrl = await redirectUrlRes.json();
         url = redirectUrl?.redirectUrl || url;
@@ -44,7 +44,7 @@ export const getEpisodes = async function ({
       headers: providerContext.commonHeaders,
     });
     const html = res.data;
-    let $ = providerContext.cheerio.load(html);
+    const $ = providerContext.cheerio.load(html);
 
     $("a.maxbutton-4,a.maxbutton,.maxbutton-hubcloud,.ep-simple-button").map(
       (i, element) => {
@@ -65,7 +65,7 @@ export const getEpisodes = async function ({
             link,
           });
         }
-      }
+      },
     );
     return episodeLinks;
   } catch (err) {

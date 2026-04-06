@@ -138,7 +138,7 @@ async function fetchPosts({
   } catch (err) {
     console.error(
       "Cinevood fetchPosts error:",
-      err instanceof Error ? err.message : String(err)
+      err instanceof Error ? err.message : String(err),
     );
     return [];
   }

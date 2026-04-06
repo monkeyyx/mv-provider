@@ -60,7 +60,7 @@ export const getSearchPosts = async function ({
 async function posts(
   url: string,
   signal: AbortSignal,
-  providerContext: ProviderContext
+  providerContext: ProviderContext,
 ): Promise<Post[]> {
   try {
     const { axios, cheerio } = providerContext;

@@ -72,18 +72,18 @@ export const getMeta = async function ({
     const type = links.some(
       (link) =>
         link.episodesLink?.includes("Season") ||
-        link.episodesLink?.includes("S0")
+        link.episodesLink?.includes("S0"),
     )
       ? "series"
       : directLinks.length > 1
-      ? "series"
-      : "movie";
+        ? "series"
+        : "movie";
 
     return {
       title: title,
       synopsis: `Content from 111477.xyz directory`,
       image: `https://placehold.jp/23/000000/ffffff/300x450.png?text=${encodeURIComponent(
-        title
+        title,
       )}&css=%7B%22background%22%3A%22%20-webkit-gradient(linear%2C%20left%20bottom%2C%20left%20top%2C%20from(%233f3b3b)%2C%20to(%23000000))%22%2C%22text-transform%22%3A%22%20capitalize%22%7D`,
       imdbId: "",
       type: type,

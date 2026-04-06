@@ -32,7 +32,7 @@ export const getMeta = async function ({
             .remove()
             .end()
             .text();
-          let episodesList: { title: string; link: string }[] = [];
+          const episodesList: { title: string; link: string }[] = [];
           $(element)
             .find(".episodios")
             .children()

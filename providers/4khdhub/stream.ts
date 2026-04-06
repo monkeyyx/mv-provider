@@ -122,10 +122,10 @@ export async function getRedirectLinks(
     const res = await fetch(link, { headers, signal });
     const resText = await res.text();
 
-    var regex = /ck\('_wp_http_\d+','([^']+)'/g;
-    var combinedString = "";
+    const regex = /ck\('_wp_http_\d+','([^']+)'/g;
+    let combinedString = "";
 
-    var match;
+    let match;
     while ((match = regex.exec(resText)) !== null) {
       // console.log(match[1]);
       combinedString += match[1];
@@ -138,7 +138,7 @@ export async function getRedirectLinks(
     const token = encode(data?.data);
     const blogLink = data?.wp_http1 + "?re=" + token;
     // abort timeout on signal
-    let wait = abortableTimeout((Number(data?.total_time) + 3) * 1000, {
+    const wait = abortableTimeout((Number(data?.total_time) + 3) * 1000, {
       signal,
     });
 

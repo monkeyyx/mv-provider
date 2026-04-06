@@ -11,10 +11,10 @@ export const getEpisodes = async function ({
   try {
     const res = await axios.get(url);
     const html = res.data;
-    let $ = cheerio.load(html);
+    const $ = cheerio.load(html);
     const episodeLinks: EpisodeLink[] = [];
     $(
-      'strong:contains("Episode"),strong:contains("1080"),strong:contains("720"),strong:contains("480")'
+      'strong:contains("Episode"),strong:contains("1080"),strong:contains("720"),strong:contains("480")',
     ).map((i, element) => {
       const title = $(element).text();
       const link = $(element)

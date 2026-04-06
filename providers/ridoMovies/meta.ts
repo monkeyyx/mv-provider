@@ -22,7 +22,7 @@ export const getMeta = async function ({
     let slug = "";
     try {
       const res2 = await axios.get(
-        baseUrl + "/core/api/search?q=" + meta.imdbId
+        baseUrl + "/core/api/search?q=" + meta.imdbId,
       );
       const data2 = res2.data;
       slug = data2?.data?.items[0]?.fullSlug;
@@ -47,8 +47,8 @@ export const getMeta = async function ({
       };
     }
     const links: Link[] = [];
-    let directLinks: EpisodeLink[] = [];
-    let season = new Map();
+    const directLinks: EpisodeLink[] = [];
+    const season = new Map();
     if (meta.type === "series") {
       data?.meta?.videos?.map((video: any) => {
         if (video?.season <= 0) return;

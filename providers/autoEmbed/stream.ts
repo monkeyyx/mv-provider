@@ -32,7 +32,7 @@ export const getStream = async ({
       season,
       effectiveType,
       streams,
-      providerContext
+      providerContext,
     );
 
     await getRiveStream(
@@ -41,7 +41,7 @@ export const getStream = async ({
       season,
       effectiveType,
       streams,
-      providerContext
+      providerContext,
     );
     return streams;
   } catch (err) {
@@ -57,7 +57,7 @@ export async function getWebstreamerStream(
   season: string,
   type: string,
   Streams: Stream[],
-  providerContext: ProviderContext
+  providerContext: ProviderContext,
 ) {
   if (!imdbId || imdbId === "undefined") return;
   const url = `https://webstreamr.hayd.uk/{"multi":"on","al":"on","de":"on","es":"on","fr":"on","hi":"on","it":"on","mx":"on","mediaFlowProxyUrl":"","mediaFlowProxyPassword":""}/stream/${type}/${imdbId}${
@@ -97,7 +97,7 @@ export async function getRiveStream(
   season: string,
   type: string,
   Streams: Stream[],
-  providerContext: ProviderContext
+  providerContext: ProviderContext,
 ) {
   if (!tmdId || tmdId === "undefined") {
     console.warn("autoEmbed/rive: missing tmdbId in link payload");
@@ -162,7 +162,7 @@ export async function getRiveStream(
       } catch (e) {
         console.log(e);
       }
-    })
+    }),
   );
 }
 

@@ -33,7 +33,7 @@ export const getMeta = async function ({
       const episodesLink = $(element)
         .next("p")
         .find(
-          ".maxbutton-episode-links,.maxbutton-g-drive,.maxbutton-af-download"
+          ".maxbutton-episode-links,.maxbutton-g-drive,.maxbutton-af-download",
         )
         .attr("href");
       const movieLink = $(element)

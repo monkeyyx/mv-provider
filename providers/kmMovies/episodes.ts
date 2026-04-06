@@ -29,7 +29,10 @@ export async function getEpisodeLinks({
 
           // --- Sirf SkyDrop links include karo
           const lowerHref = href.toLowerCase();
-          if (lowerHref.includes("skydro") || lowerHref.includes("flexplayer.buzz")) {
+          if (
+            lowerHref.includes("skydro") ||
+            lowerHref.includes("flexplayer.buzz")
+          ) {
             episodes.push({
               title: `${epTitle} - ${btnText}`,
               link: href,

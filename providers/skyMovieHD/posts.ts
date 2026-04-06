@@ -102,7 +102,7 @@ async function fetchPosts({
       let link =
         card
           .find(
-            "header.entry-header h2.entry-title a, header.entry-header h1.entry-title a"
+            "header.entry-header h2.entry-title a, header.entry-header h1.entry-title a",
           )
           .attr("href") || "";
       if (!link) return;
@@ -110,9 +110,9 @@ async function fetchPosts({
       if (seen.has(link)) return;
 
       // Title: remove "Download"
-      let title = card
+      const title = card
         .find(
-          "header.entry-header h2.entry-title a, header.entry-header h1.entry-title a"
+          "header.entry-header h2.entry-title a, header.entry-header h1.entry-title a",
         )
         .text()
         .replace(/^Download\s*/i, "")
@@ -120,7 +120,7 @@ async function fetchPosts({
       if (!title) return;
 
       // Image
-      let img =
+      const img =
         card.find("a#featured-thumbnail img").attr("data-src") ||
         card.find("a#featured-thumbnail img").attr("src") ||
         "";
@@ -134,7 +134,7 @@ async function fetchPosts({
   } catch (err) {
     console.error(
       "fetchPosts error:",
-      err instanceof Error ? err.message : String(err)
+      err instanceof Error ? err.message : String(err),
     );
     return [];
   }

@@ -38,7 +38,13 @@ export async function getSearchPosts({
   signal?: AbortSignal;
   providerContext: ProviderContext;
 }): Promise<Post[]> {
-  return fetchPosts({ filter: "", page, query: searchQuery, signal, providerContext });
+  return fetchPosts({
+    filter: "",
+    page,
+    query: searchQuery,
+    signal,
+    providerContext,
+  });
 }
 
 // --- Core function ---
@@ -97,7 +103,7 @@ async function fetchPosts({
         anchor.attr("title")?.trim() || anchor.find("h2").text().trim() || "";
 
       // Image
-      let img =
+      const img =
         anchor.find("img").attr("data-original") ||
         anchor.find("img").attr("src") ||
         "";
@@ -113,7 +119,7 @@ async function fetchPosts({
   } catch (err) {
     console.error(
       "fetchPosts error:",
-      err instanceof Error ? err.message : String(err)
+      err instanceof Error ? err.message : String(err),
     );
     return [];
   }

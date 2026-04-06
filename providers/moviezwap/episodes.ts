@@ -32,7 +32,7 @@ export const getEpisodes = async function ({
             link: baseUrl + downloadPage,
           });
         }
-      }
+      },
     );
 
     return episodeLinks;

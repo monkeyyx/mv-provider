@@ -50,7 +50,7 @@ export async function getStream({
       const isAllowed = ALLOWED_SERVERS.some(
         (allowed) =>
           serverName.toUpperCase().includes(allowed) ||
-          allowed.includes(serverName.toUpperCase())
+          allowed.includes(serverName.toUpperCase()),
       );
 
       if (href && isAllowed) {

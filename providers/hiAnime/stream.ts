@@ -46,7 +46,7 @@ export const getStream = async function ({
         } catch (e) {
           console.log(e);
         }
-      })
+      }),
     );
     return streamLinks;
   } catch (err) {

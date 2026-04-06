@@ -136,7 +136,7 @@ class DevServer {
   }
 
   getBuildTime() {
-    const manifestPath = path.join(this.rootDir, "manifest.json");
+    const manifestPath = path.join(this.currentDir, "manifest.json");
     if (fs.existsSync(manifestPath)) {
       const stats = fs.statSync(manifestPath);
       return stats.mtime.toISOString();

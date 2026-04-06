@@ -60,21 +60,21 @@ export const getEpisodes = async function ({
 
 export async function extractKmhdLink(
   katlink: string,
-  providerContext: ProviderContext
+  providerContext: ProviderContext,
 ) {
   const { axios } = providerContext;
   const res = await axios.get(katlink);
   const data = res.data;
   const hubDriveRes = data.match(/hubdrive_res:\s*"([^"]+)"/)[1];
   const hubDriveLink = data.match(
-    /hubdrive_res\s*:\s*{[^}]*?link\s*:\s*"([^"]+)"/
+    /hubdrive_res\s*:\s*{[^}]*?link\s*:\s*"([^"]+)"/,
   )[1];
   return hubDriveLink + hubDriveRes;
 }
 
 async function extractKmhdEpisodes(
   katlink: string,
-  providerContext: ProviderContext
+  providerContext: ProviderContext,
 ) {
   const { axios } = providerContext;
   const res = await axios.get(katlink);

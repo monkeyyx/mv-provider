@@ -43,7 +43,7 @@ export async function getStream({
 
     // 🔹 Step 2: Extract button download_video() info
     const buttonMatches = dotlinkText.matchAll(
-      /download_video\('([^']+)','([^']+)','([^']+)'\)/g
+      /download_video\('([^']+)','([^']+)','([^']+)'\)/g,
     );
 
     for (const match of buttonMatches) {
@@ -58,7 +58,7 @@ export async function getStream({
 
         // Regex scrape
         const directMatches = dlText.matchAll(
-          /<a\s+href="([^"]+\.(?:mkv|mp4))"/gi
+          /<a\s+href="([^"]+\.(?:mkv|mp4))"/gi,
         );
         for (const m of directMatches) {
           const href = m[1];

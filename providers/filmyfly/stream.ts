@@ -20,7 +20,7 @@ export const getStream = async function ({
     const elements = $(".button2,.button1,.button3,.button4,.button").toArray();
     const promises = elements.map(async (element) => {
       const title = $(element).text();
-      let link = $(element).attr("href");
+      const link = $(element).attr("href");
       if (title.includes("GDFLIX") && link) {
         const gdLinks = await gdflixExtractor(
           link,

@@ -9,7 +9,7 @@ export const getStream = async ({
 }): Promise<Stream[]> => {
   const { getBaseUrl } = providerContext;
   try {
-    let providerValue = "netflixMirror";
+    const providerValue = "netflixMirror";
     const baseUrl = await getBaseUrl("nfMirror");
     console.log("nfGetStream, baseUrl:", baseUrl);
     const url = `https://netmirror.8man.dev/api/net-proxy?url=${baseUrl}${

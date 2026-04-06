@@ -47,7 +47,7 @@ async function buildProvider(providerName) {
         format: "cjs",
         target: "es2015",
         write: false,
-        external: [],
+        external: ["react-native"],
         minify: false,
         keepNames: true,
         treeShaking: true,
@@ -168,7 +168,7 @@ async function buildUtilityFiles() {
         format: "cjs",
         target: "es2015",
         write: false,
-        external: [],
+        external: ["react-native"],
         minify: false,
         keepNames: true,
         treeShaking: true,
@@ -212,6 +212,14 @@ async function buildAll() {
     (sum, r) => sum + r.modules.reduce((s, m) => s + m.size, 0),
     0,
   );
+
+  // Copy manifest.json to dist
+  const manifestPath = path.join(__dirname, "manifest.json");
+  const distManifestPath = path.join(distDir, "manifest.json");
+  if (fs.existsSync(manifestPath)) {
+    fs.copyFileSync(manifestPath, distManifestPath);
+    console.log("✓ Compiled manifest.json copied to dist/");
+  }
 
   const endTime = Date.now();
   console.log(

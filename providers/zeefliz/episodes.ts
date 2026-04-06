@@ -1,4 +1,3 @@
-
 import { EpisodeLink, ProviderContext } from "../types";
 
 export const getEpisodes = async function ({
@@ -28,7 +27,7 @@ export const getEpisodes = async function ({
       const link = el
         .next("p")
         .find(
-          '.btn-outline[style="background:linear-gradient(135deg,#ed0b0b,#f2d152); color: white;"]'
+          '.btn-outline[style="background:linear-gradient(135deg,#ed0b0b,#f2d152); color: white;"]',
         )
         .parent()
         .attr("href");
