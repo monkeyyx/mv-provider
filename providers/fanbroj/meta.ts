@@ -9,7 +9,9 @@ export const getMeta = async function ({
   provider: string;
   providerContext: ProviderContext;
 }): Promise<Info> {
+  console.log(`[Fanbroj] Fetching Meta (v3.4.1) for: ${link}`);
   const { axios, commonHeaders } = providerContext;
+
   const baseUrl = "https://fanbroj.net";
   
   // link format: /movies/[slug] or /series/[slug]
@@ -78,3 +80,6 @@ export const getMeta = async function ({
     };
   }
 };
+
+// Backward compatibility
+export const getMetaData = getMeta;

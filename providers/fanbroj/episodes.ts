@@ -7,6 +7,7 @@ export const getEpisodes = async function ({
   url: string;
   providerContext: ProviderContext;
 }): Promise<EpisodeLink[]> {
+  console.log(`[Fanbroj] Fetching Episodes (v3.4.1) for: ${url}`);
   const { axios, commonHeaders } = providerContext;
   const baseUrl = "https://fanbroj.net";
   
@@ -51,3 +52,6 @@ export const getEpisodes = async function ({
     return [];
   }
 };
+
+// Backward compatibility
+export const getEpisodeLinks = getEpisodes;

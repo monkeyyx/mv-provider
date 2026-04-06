@@ -60,7 +60,7 @@ async function buildProvider(providerName) {
       // Remove require statements for built-in modules that aren't available
       code = code.replace(/require\(['"]node:.*?['"]\)/g, "{}");
 
-      const exportMatch = code.match(/__export\((\w+),\s*\{([^}]+)\}\);/);
+      const exportMatch = code.match(/__export\((\w+),\s*\{([\s\S]+?)\}\);/);
 
       if (exportMatch) {
         const exportsVar = exportMatch[1];
@@ -75,9 +75,9 @@ async function buildProvider(providerName) {
           })
           .filter(Boolean);
 
-        // Replace module.exports pattern
+        // Replace module.exports pattern (with potential multi-line/spacing)
         code = code.replace(
-          /module\.exports\s*=\s*__toCommonJS\((\w+)\);/g,
+          /module\.exports\s*=\s*__toCommonJS\([\s\S]+?\);/g,
           "",
         );
 
@@ -87,10 +87,14 @@ async function buildProvider(providerName) {
           .join("\n");
 
         // Add the exports before the final comment
-        code = code.replace(
-          /\/\/ Annotate the CommonJS export names for ESM import in node:/,
-          `${directExports}\n// Annotate the CommonJS export names for ESM import in node:`,
-        );
+        if (code.includes("// Annotate the CommonJS export names for ESM import in node:")) {
+          code = code.replace(
+            /\/\/ Annotate the CommonJS export names for ESM import in node:/,
+            `${directExports}\n// Annotate the CommonJS export names for ESM import in node:`,
+          );
+        } else {
+          code += `\n${directExports}\n`;
+        }
       }
 
       // Also handle the "0 && (module.exports = {...})" pattern at the end
