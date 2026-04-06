@@ -1,6 +1,6 @@
 import { Catalog } from "../types";
 
-export const catalogs: Catalog[] = [
+export const catalog: Catalog[] = [
   {
     title: "Latest Movies",
     filter: "/movies",

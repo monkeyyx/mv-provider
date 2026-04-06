@@ -338,9 +338,10 @@
   {
      "display_name": "Fanbroj",
      "value": "fanbroj",
-     "version": "1.0",
+     "version": "3.3.5",
      "icon": "https://fanbroj.net/favicon.ico",
      "type": "global",
-     "disabled": false
+     "disabled": false,
+     "hostnames": ["fanbroj.net", "daawo.xyz", "xamaali.cfd", "fanproj.net"]
    }
 ]
