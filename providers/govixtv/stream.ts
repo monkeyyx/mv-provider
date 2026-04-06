@@ -55,14 +55,22 @@ export const getStream = async function ({
     const foundUrls = new Set<string>();
 
     while ((match = m3u8Regex.exec(html)) !== null) {
-      const url = match[1] || match[2] || match[3];
-      if (url && !foundUrls.has(url)) {
-        foundUrls.add(url);
+      const rawUrl = match[1] || match[2] || match[3];
+      if (rawUrl && !foundUrls.has(rawUrl)) {
+        foundUrls.add(rawUrl);
+
+        // Bypass the session/sig block by cleaning the URL and suppressing cookies
+        const cleanUrl = rawUrl.split('?')[0];
+
         streams.push({
-          server: "Govix-HLS",
-          link: url,
-          type: "hls",
-          quality: "1080",
+          server: 'Govix-HLS',
+          link: cleanUrl,
+          type: 'hls',
+          headers: {
+            Cookie: '',
+            Referer: baseUrl,
+          },
+          quality: '1080',
         });
       }
     }
