@@ -51,14 +51,21 @@ export const getStream = async function ({
 
     // The videoSource is usually a .txt manifest which is actually an M3U8.
     // We need to pass the headers (UA & Referer) to the player so it can fetch segments.
+    // Decode the 'ck' session value if present
+    const ck = data.ck || "";
+    const decodedCk = ck.includes("\\x") 
+      ? ck.replace(/\\x([0-9a-fA-F]{2})/g, (_: any, hex: string) => String.fromCharCode(parseInt(hex, 16)))
+      : ck;
+
     streams.push({
       server: "Fire-HLS",
       link: videoUrl,
       type: "m3u8",
       quality: "1080",
       headers: {
-        Referer: host + "/", // Important for segment access
+        Referer: link, // Use full link as referer for both manifest and segments
         "User-Agent": commonHeaders["User-Agent"] || "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        ...(decodedCk && { Cookie: `fire_ck=${decodedCk}` }),
       },
     });
 
