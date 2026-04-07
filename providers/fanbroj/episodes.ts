@@ -7,12 +7,18 @@ export const getEpisodes = async function ({
   url: string;
   providerContext: ProviderContext;
 }): Promise<EpisodeLink[]> {
-  console.log(`[Fanbroj] Fetching Episodes (v3.4.1) for: ${url}`);
+  console.log(`[Fanbroj] Fetching Episodes (v3.4.5) for: ${url}`);
   const { axios, commonHeaders } = providerContext;
   const baseUrl = "https://fanbroj.net";
   
-  // url format: /series/[slug]
-  const slug = url.split("/").pop() || "";
+  // url format: /series/[slug] or legacy /series_episodes.php?id=[id]
+  let slug = "";
+  if (url.includes("id=")) {
+    slug = url.split("id=")[1].split("&")[0];
+  } else {
+    slug = url.split("/").pop() || "";
+  }
+  
   const apiUrl = `${baseUrl}/api/series/${slug}/episodes`;
 
   try {

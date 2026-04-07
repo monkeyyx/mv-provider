@@ -11,17 +11,26 @@ export const getMeta = async function ({
   provider: string;
   providerContext: ProviderContext;
 }): Promise<Info> {
-  console.log(`[Fanbroj] Fetching Meta (v3.4.1) for: ${link}`);
+  console.log(`[Fanbroj] Fetching Meta (v3.4.5) for: ${link}`);
   const { axios, commonHeaders } = providerContext;
 
   const baseUrl = "https://fanbroj.net";
   
-  // link format: /movies/[slug] or /series/[slug]
-  const isSeries = link.includes("/series/");
-  const slug = link.split("/").pop() || "";
+  // link format: /movies/[slug] or /series/[slug] or legacy /series_episodes.php?id=[id]
+  const isSeries = link.includes("/series/") || link.includes("series_episodes.php");
+  
+  // Extract slug/id
+  let slug = "";
+  if (link.includes("id=")) {
+    slug = link.split("id=")[1].split("&")[0];
+  } else {
+    slug = link.split("/").pop() || "";
+  }
   
   let apiUrl = "";
   if (isSeries) {
+    // If it's a numeric ID from legacy links, we might need a different logic, 
+    // but for now we try to use it as a slug.
     apiUrl = `${baseUrl}/api/series/${slug}`;
   } else {
     apiUrl = `${baseUrl}/api/movies?slug=${slug}`;
