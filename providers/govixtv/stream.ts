@@ -28,6 +28,7 @@ export const getStream = async function ({
       headers: {
         ...commonHeaders,
         Referer: baseUrl,
+        "X-Requested-With": "XMLHttpRequest",
       },
       signal,
     });
@@ -41,6 +42,7 @@ export const getStream = async function ({
         "Content-Type": "application/x-www-form-urlencoded",
         Referer: fullUrl,
         Origin: baseUrl,
+        "X-Requested-With": "XMLHttpRequest",
       },
       signal,
     });

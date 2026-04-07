@@ -24,7 +24,14 @@ export const getPosts = async function ({
   const url = `${baseUrl}${filter}`;
 
   try {
-    const res = await axios.get(url, { headers: commonHeaders, signal });
+    const res = await axios.get(url, {
+      headers: {
+        ...commonHeaders,
+        Referer: baseUrl,
+        "X-Requested-With": "XMLHttpRequest",
+      },
+      signal,
+    });
     const $ = cheerio.load(res.data);
     const posts: Post[] = [];
 

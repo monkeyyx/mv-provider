@@ -15,7 +15,13 @@ export const getMeta = async function ({
   const fullUrl = link.startsWith("http") ? link : `${baseUrl}${link}`;
 
   try {
-    const res = await axios.get(fullUrl, { headers: commonHeaders });
+    const res = await axios.get(fullUrl, {
+      headers: {
+        ...commonHeaders,
+        Referer: baseUrl,
+        "X-Requested-With": "XMLHttpRequest",
+      },
+    });
     const $ = cheerio.load(res.data);
 
     const isSeries =
