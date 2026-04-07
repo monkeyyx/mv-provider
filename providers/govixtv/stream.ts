@@ -76,7 +76,7 @@ export const getStream = async function ({
           link: rawUrl, // Preserve query parameters (tokens/sigs)
           type: 'hls',
           headers: {
-            Cookie: sessionCookie,
+            Cookie: '', // Stream host rejects session cookies
             Referer: 'https://www.govixtv.com/',
             Origin: 'https://www.govixtv.com',
             "User-Agent": mobileUA,
