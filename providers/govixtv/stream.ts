@@ -23,8 +23,8 @@ export const getStream = async function ({
     const idMatch = fullUrl.match(/id=(\d+)/);
     const mediaId = idMatch ? idMatch[1] : "";
 
-    // Step 1: GET to establish session
-    await axios.get(fullUrl, {
+    // Step 1: GET to establish session and capture cookies
+    const getRes = await axios.get(fullUrl, {
       headers: {
         ...commonHeaders,
         Referer: baseUrl,
@@ -32,6 +32,10 @@ export const getStream = async function ({
       },
       signal,
     });
+
+    // Extract session cookie if any, otherwise use fallback
+    const setCookie = getRes.headers["set-cookie"];
+    let sessionCookie = setCookie ? (Array.isArray(setCookie) ? setCookie.join("; ") : setCookie) : "PHPSESSID=avenj1v3q1663ml31gs796qq45";
 
     // Step 2: POST to bypass phone verification
     const postData = `phone=615123456&full_number=252615123456${mediaId ? `&id=${mediaId}` : ""}`;
@@ -43,34 +47,40 @@ export const getStream = async function ({
         Referer: fullUrl,
         Origin: baseUrl,
         "X-Requested-With": "XMLHttpRequest",
+        Cookie: sessionCookie,
       },
       signal,
     });
 
     const html = res.data;
 
-    // Extraction Logic: Look for .m3u8 links in hls.loadSource, video.src, or window variables
-    // Improved regex to handle escaped quotes, no quotes, and multiple sources
+    // Capture updated session if any
+    const finalSetCookie = res.headers["set-cookie"];
+    if (finalSetCookie) {
+      sessionCookie = Array.isArray(finalSetCookie) ? finalSetCookie.join("; ") : finalSetCookie;
+    }
+
+    // Extraction Logic: Look for .m3u8 links
     const m3u8Regex =
       /"(https?:\/\/[^"]+\.m3u8[^"]*)"|'(https?:\/\/[^']+\.m3u8[^']*)'|(?<=file\s*:\s*)(https?:\/\/[^\s,}]+\.m3u8[^\s,}]*)/gi;
     let match;
     const foundUrls = new Set<string>();
+
+    const mobileUA = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36";
 
     while ((match = m3u8Regex.exec(html)) !== null) {
       const rawUrl = match[1] || match[2] || match[3];
       if (rawUrl && !foundUrls.has(rawUrl)) {
         foundUrls.add(rawUrl);
 
-        // Bypass the session/sig block by cleaning the URL and suppressing cookies
-        const cleanUrl = rawUrl.split('?')[0];
-
         streams.push({
           server: 'Govix-HLS',
-          link: cleanUrl,
+          link: rawUrl, // Keeping query parameters as they might contain tokens
           type: 'hls',
           headers: {
-            Cookie: '',
+            Cookie: sessionCookie,
             Referer: baseUrl,
+            "User-Agent": mobileUA,
           },
           quality: '1080',
         });

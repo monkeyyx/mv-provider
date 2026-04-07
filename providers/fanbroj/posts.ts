@@ -1,6 +1,14 @@
 import { Post, ProviderContext } from "../types";
+import { genres } from "./catalog";
 
 const DEFAULT_IMAGE = "https://placehold.jp/24/363636/ffffff/500x750.png?text=Fanbroj";
+const ABSOLUTE_URL_PATTERN = /^https?:\/\//i;
+
+const toAbsoluteUrl = (value: string | undefined, baseUrl: string): string => {
+  if (!value) return "";
+  if (ABSOLUTE_URL_PATTERN.test(value)) return value;
+  return `${baseUrl}${value.startsWith("/") ? "" : "/"}${value}`;
+};
 
 export const getPosts = async function ({
   filter,
@@ -68,8 +76,14 @@ export const getPosts = async function ({
 
     return items.map((item: any) => ({
       title: item.title,
-      image: item.posterUrl || item.backdropUrl || DEFAULT_IMAGE,
-      link: isSeries ? `/series/${item.slug}` : `/movies/${item.slug}`,
+      image:
+        toAbsoluteUrl(item.posterUrl, baseUrl) ||
+        toAbsoluteUrl(item.backdropUrl, baseUrl) ||
+        DEFAULT_IMAGE,
+      link: toAbsoluteUrl(
+        isSeries ? `/series/${item.slug}` : `/movies/${item.slug}`,
+        baseUrl,
+      ),
       provider: providerValue,
     }));
   } catch (error) {
@@ -78,7 +92,7 @@ export const getPosts = async function ({
   }
 };
 
-const getSearchPosts = async function ({
+export const getSearchPosts = async function ({
   searchQuery,
   page,
   providerValue,
@@ -93,9 +107,18 @@ const getSearchPosts = async function ({
 }): Promise<Post[]> {
   const { axios, commonHeaders } = providerContext;
   const baseUrl = "https://fanbroj.net";
-  const apiUrl = `${baseUrl}/api/search?q=${encodeURIComponent(searchQuery)}&page=${page}`;
+
+  // Check if query matches a genre name
+  const matchedGenre = genres.find(
+    (g) => g.title.toLowerCase() === searchQuery.toLowerCase(),
+  );
+
+  const searchResults: Post[] = [];
+  const processedLinks = new Set<string>();
 
   try {
+    // 1. Fetch results from the standard search API
+    const apiUrl = `${baseUrl}/api/search?q=${encodeURIComponent(searchQuery)}&page=${page}`;
     const res = await axios.get(apiUrl, {
       headers: {
         ...commonHeaders,
@@ -106,30 +129,75 @@ const getSearchPosts = async function ({
     });
 
     const data = res.data;
-    if (!data) return [];
-
-    const searchResults: Post[] = [];
-
-    if (data.movies && Array.isArray(data.movies)) {
-      data.movies.forEach((item: any) => {
-        searchResults.push({
-          title: item.title,
-          image: item.posterUrl || item.backdropUrl || DEFAULT_IMAGE,
-          link: `/movies/${item.slug}`,
-          provider: providerValue,
+    if (data) {
+      if (data.movies && Array.isArray(data.movies)) {
+        data.movies.forEach((item: any) => {
+          const link = toAbsoluteUrl(`/movies/${item.slug}`, baseUrl);
+          if (!processedLinks.has(link)) {
+            searchResults.push({
+              title: item.title,
+              image:
+                toAbsoluteUrl(item.posterUrl, baseUrl) ||
+                toAbsoluteUrl(item.backdropUrl, baseUrl) ||
+                DEFAULT_IMAGE,
+              link,
+              provider: providerValue,
+            });
+            processedLinks.add(link);
+          }
         });
-      });
+      }
+
+      if (data.series && Array.isArray(data.series)) {
+        data.series.forEach((item: any) => {
+          const link = toAbsoluteUrl(`/series/${item.slug}`, baseUrl);
+          if (!processedLinks.has(link)) {
+            searchResults.push({
+              title: item.title,
+              image:
+                toAbsoluteUrl(item.posterUrl, baseUrl) ||
+                toAbsoluteUrl(item.backdropUrl, baseUrl) ||
+                DEFAULT_IMAGE,
+              link,
+              provider: providerValue,
+            });
+            processedLinks.add(link);
+          }
+        });
+      }
     }
 
-    if (data.series && Array.isArray(data.series)) {
-      data.series.forEach((item: any) => {
-        searchResults.push({
-          title: item.title,
-          image: item.posterUrl || item.backdropUrl || DEFAULT_IMAGE,
-          link: `/series/${item.slug}`,
-          provider: providerValue,
-        });
+    // 2. If it matches a genre, also fetch movies from that genre
+    if (matchedGenre && page === 1) {
+      const genreName = matchedGenre.filter.replace("genre:", "");
+      const genreApiUrl = `${baseUrl}/api/movies?page=1&genres=${genreName}`;
+      const genreRes = await axios.get(genreApiUrl, {
+        headers: {
+          ...commonHeaders,
+          Referer: baseUrl,
+          "X-Requested-With": "XMLHttpRequest",
+        },
+        signal,
       });
+
+      const genreData = genreRes.data;
+      if (genreData && genreData.movies && Array.isArray(genreData.movies)) {
+        genreData.movies.forEach((item: any) => {
+          const link = toAbsoluteUrl(`/movies/${item.slug}`, baseUrl);
+          if (!processedLinks.has(link)) {
+            searchResults.push({
+              title: item.title,
+              image:
+                toAbsoluteUrl(item.posterUrl, baseUrl) ||
+                toAbsoluteUrl(item.backdropUrl, baseUrl) ||
+                DEFAULT_IMAGE,
+              link,
+              provider: providerValue,
+            });
+            processedLinks.add(link);
+          }
+        });
+      }
     }
 
     return searchResults;
