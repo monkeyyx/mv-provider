@@ -32,6 +32,7 @@ export const getMeta = async function ({
       headers: {
         ...commonHeaders,
         Referer: baseUrl,
+        "X-Requested-With": "XMLHttpRequest",
       },
     });
 

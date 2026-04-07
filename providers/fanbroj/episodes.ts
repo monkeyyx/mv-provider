@@ -20,6 +20,7 @@ export const getEpisodes = async function ({
       headers: {
         ...commonHeaders,
         Referer: baseUrl,
+        "X-Requested-With": "XMLHttpRequest",
       },
     });
 

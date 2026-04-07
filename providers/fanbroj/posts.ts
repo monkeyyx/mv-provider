@@ -55,6 +55,7 @@ export const getPosts = async function ({
       headers: {
         ...commonHeaders,
         Referer: baseUrl,
+        "X-Requested-With": "XMLHttpRequest",
       },
       signal,
     });
@@ -99,6 +100,7 @@ const getSearchPosts = async function ({
       headers: {
         ...commonHeaders,
         Referer: baseUrl,
+        "X-Requested-With": "XMLHttpRequest",
       },
       signal,
     });

@@ -69,7 +69,12 @@ export const getStream = async function ({
       "User-Agent":
         commonHeaders["User-Agent"] ||
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      ...(decodedCk && { Cookie: `fire_ck=${decodedCk}` }),
+      "X-Requested-With": "XMLHttpRequest",
+      ...(decodedCk && {
+        Cookie: decodedCk.includes("fire_ck=")
+          ? decodedCk
+          : `fire_ck=${decodedCk}`,
+      }),
     };
 
     // Primary stream
