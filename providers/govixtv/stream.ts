@@ -33,12 +33,11 @@ export const getStream = async function ({
       signal,
     });
 
-    // Extract session cookie if any, otherwise use fallback
     const setCookie = getRes.headers["set-cookie"];
     let sessionCookie = setCookie ? (Array.isArray(setCookie) ? setCookie.join("; ") : setCookie) : "PHPSESSID=avenj1v3q1663ml31gs796qq45";
 
-    // Step 2: POST to bypass phone verification
-    const postData = `phone=615123456&full_number=252615123456${mediaId ? `&id=${mediaId}` : ""}`;
+    // Step 2: POST to bypass phone verification using 123456789
+    const postData = `phone=123456789&full_number=252123456789${mediaId ? `&id=${mediaId}` : ""}`;
 
     const res = await axios.post(fullUrl, postData, {
       headers: {
@@ -54,7 +53,6 @@ export const getStream = async function ({
 
     const html = res.data;
 
-    // Capture updated session if any
     const finalSetCookie = res.headers["set-cookie"];
     if (finalSetCookie) {
       sessionCookie = Array.isArray(finalSetCookie) ? finalSetCookie.join("; ") : finalSetCookie;
@@ -66,7 +64,7 @@ export const getStream = async function ({
     let match;
     const foundUrls = new Set<string>();
 
-    const mobileUA = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36";
+    const mobileUA = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1";
 
     while ((match = m3u8Regex.exec(html)) !== null) {
       const rawUrl = match[1] || match[2] || match[3];
@@ -75,11 +73,12 @@ export const getStream = async function ({
 
         streams.push({
           server: 'Govix-HLS',
-          link: rawUrl, // Keeping query parameters as they might contain tokens
+          link: rawUrl, // Preserve query parameters (tokens/sigs)
           type: 'hls',
           headers: {
             Cookie: sessionCookie,
-            Referer: baseUrl,
+            Referer: 'https://www.govixtv.com/',
+            Origin: 'https://www.govixtv.com',
             "User-Agent": mobileUA,
           },
           quality: '1080',
