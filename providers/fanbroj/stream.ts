@@ -47,27 +47,52 @@ export const getStream = async function ({
     }
 
     const streams: Stream[] = [];
-    const videoUrl = data.securedLink || data.videoSource;
+    const videoUrl = data.videoSource || data.securedLink;
+    const fallbackUrl = data.securedLink;
 
-    // The videoSource is usually a .txt manifest which is actually an M3U8.
-    // We need to pass the headers (UA & Referer) to the player so it can fetch segments.
     // Decode the 'ck' session value if present
     const ck = data.ck || "";
-    const decodedCk = ck.includes("\\x") 
-      ? ck.replace(/\\x([0-9a-fA-F]{2})/g, (_: any, hex: string) => String.fromCharCode(parseInt(hex, 16)))
-      : ck;
+    let decodedCk = ck;
+    if (ck.includes("\\x")) {
+      try {
+        decodedCk = ck.replace(/\\x([0-9a-fA-F]{2})/g, (_: any, hex: string) =>
+          String.fromCharCode(parseInt(hex, 16))
+        );
+      } catch (e) {
+        console.error("Fanbroj ck decode error", e);
+      }
+    }
 
-    streams.push({
-      server: "Fire-HLS",
-      link: videoUrl,
-      type: "m3u8",
-      quality: "1080",
-      headers: {
-        Referer: link, // Use full link as referer for both manifest and segments
-        "User-Agent": commonHeaders["User-Agent"] || "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        ...(decodedCk && { Cookie: `fire_ck=${decodedCk}` }),
-      },
-    });
+    const commonStreamHeaders = {
+      Referer: link,
+      Origin: host,
+      "User-Agent":
+        commonHeaders["User-Agent"] ||
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      ...(decodedCk && { Cookie: `fire_ck=${decodedCk}` }),
+    };
+
+    // Primary stream
+    if (videoUrl) {
+      streams.push({
+        server: "Fire-HLS (Primary)",
+        link: videoUrl,
+        type: videoUrl.includes(".m3u8") || data.hls ? "m3u8" : "mp4",
+        quality: "1080",
+        headers: commonStreamHeaders,
+      });
+    }
+
+    // Fallback stream
+    if (fallbackUrl && fallbackUrl !== videoUrl) {
+      streams.push({
+        server: "Fire-HLS (Backup)",
+        link: fallbackUrl,
+        type: fallbackUrl.includes(".m3u8") || data.hls ? "m3u8" : "mp4",
+        quality: "1080",
+        headers: commonStreamHeaders,
+      });
+    }
 
     return streams;
   } catch (error) {
