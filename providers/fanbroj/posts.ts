@@ -2,6 +2,13 @@ import { Post, ProviderContext } from "../types";
 import { genres } from "./catalog";
 
 const DEFAULT_IMAGE = "https://placehold.jp/24/363636/ffffff/500x750.png?text=Fanbroj";
+const ABSOLUTE_URL_PATTERN = /^https?:\/\//i;
+
+const toAbsoluteUrl = (value: string | undefined, baseUrl: string): string => {
+  if (!value) return "";
+  if (ABSOLUTE_URL_PATTERN.test(value)) return value;
+  return `${baseUrl}${value.startsWith("/") ? "" : "/"}${value}`;
+};
 
 export const getPosts = async function ({
   filter,
@@ -69,8 +76,14 @@ export const getPosts = async function ({
 
     return items.map((item: any) => ({
       title: item.title,
-      image: item.posterUrl || item.backdropUrl || DEFAULT_IMAGE,
-      link: isSeries ? `/series/${item.slug}` : `/movies/${item.slug}`,
+      image:
+        toAbsoluteUrl(item.posterUrl, baseUrl) ||
+        toAbsoluteUrl(item.backdropUrl, baseUrl) ||
+        DEFAULT_IMAGE,
+      link: toAbsoluteUrl(
+        isSeries ? `/series/${item.slug}` : `/movies/${item.slug}`,
+        baseUrl,
+      ),
       provider: providerValue,
     }));
   } catch (error) {
@@ -119,11 +132,14 @@ export const getSearchPosts = async function ({
     if (data) {
       if (data.movies && Array.isArray(data.movies)) {
         data.movies.forEach((item: any) => {
-          const link = `/movies/${item.slug}`;
+          const link = toAbsoluteUrl(`/movies/${item.slug}`, baseUrl);
           if (!processedLinks.has(link)) {
             searchResults.push({
               title: item.title,
-              image: item.posterUrl || item.backdropUrl || DEFAULT_IMAGE,
+              image:
+                toAbsoluteUrl(item.posterUrl, baseUrl) ||
+                toAbsoluteUrl(item.backdropUrl, baseUrl) ||
+                DEFAULT_IMAGE,
               link,
               provider: providerValue,
             });
@@ -134,11 +150,14 @@ export const getSearchPosts = async function ({
 
       if (data.series && Array.isArray(data.series)) {
         data.series.forEach((item: any) => {
-          const link = `/series/${item.slug}`;
+          const link = toAbsoluteUrl(`/series/${item.slug}`, baseUrl);
           if (!processedLinks.has(link)) {
             searchResults.push({
               title: item.title,
-              image: item.posterUrl || item.backdropUrl || DEFAULT_IMAGE,
+              image:
+                toAbsoluteUrl(item.posterUrl, baseUrl) ||
+                toAbsoluteUrl(item.backdropUrl, baseUrl) ||
+                DEFAULT_IMAGE,
               link,
               provider: providerValue,
             });
@@ -164,11 +183,14 @@ export const getSearchPosts = async function ({
       const genreData = genreRes.data;
       if (genreData && genreData.movies && Array.isArray(genreData.movies)) {
         genreData.movies.forEach((item: any) => {
-          const link = `/movies/${item.slug}`;
+          const link = toAbsoluteUrl(`/movies/${item.slug}`, baseUrl);
           if (!processedLinks.has(link)) {
             searchResults.push({
               title: item.title,
-              image: item.posterUrl || item.backdropUrl || DEFAULT_IMAGE,
+              image:
+                toAbsoluteUrl(item.posterUrl, baseUrl) ||
+                toAbsoluteUrl(item.backdropUrl, baseUrl) ||
+                DEFAULT_IMAGE,
               link,
               provider: providerValue,
             });
