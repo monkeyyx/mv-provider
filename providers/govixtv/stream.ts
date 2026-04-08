@@ -23,7 +23,7 @@ export const getStream = async function ({
     const idMatch = fullUrl.match(/id=(\d+)/);
     const mediaId = idMatch ? idMatch[1] : "";
 
-    // Step 1: GET to establish session and capture cookies
+    // Step 1: GET to establish session (cookies are now ignored to avoid restrictions)
     const getRes = await axios.get(fullUrl, {
       headers: {
         ...commonHeaders,
@@ -33,11 +33,8 @@ export const getStream = async function ({
       signal,
     });
 
-    const setCookie = getRes.headers["set-cookie"];
-    let sessionCookie = setCookie ? (Array.isArray(setCookie) ? setCookie.join("; ") : setCookie) : "PHPSESSID=avenj1v3q1663ml31gs796qq45";
-
-    // Step 2: POST to bypass phone verification using 123456789
-    const postData = `phone=123456789&full_number=252123456789${mediaId ? `&id=${mediaId}` : ""}`;
+    // Step 2: POST to bypass phone verification using 6112345678
+    const postData = `phone=6112345678&full_number=2526112345678${mediaId ? `&id=${mediaId}` : ""}`;
 
     const res = await axios.post(fullUrl, postData, {
       headers: {
@@ -46,17 +43,11 @@ export const getStream = async function ({
         Referer: fullUrl,
         Origin: baseUrl,
         "X-Requested-With": "XMLHttpRequest",
-        Cookie: sessionCookie,
       },
       signal,
     });
 
     const html = res.data;
-
-    const finalSetCookie = res.headers["set-cookie"];
-    if (finalSetCookie) {
-      sessionCookie = Array.isArray(finalSetCookie) ? finalSetCookie.join("; ") : finalSetCookie;
-    }
 
     // Extraction Logic: Look for .m3u8 links
     const m3u8Regex =
