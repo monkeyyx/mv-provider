@@ -23,10 +23,19 @@ export const getStream = async function ({
     const idMatch = fullUrl.match(/id=(\d+)/);
     const mediaId = idMatch ? idMatch[1] : "";
 
+    const mobileUA = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36";
+    const mobileHeaders = {
+      ...commonHeaders,
+      "User-Agent": mobileUA,
+      "sec-ch-ua": '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+      "sec-ch-ua-mobile": "?1",
+      "sec-ch-ua-platform": '"Android"',
+    };
+
     // Step 1: GET to establish session (cookies are now ignored to avoid restrictions)
     const getRes = await axios.get(fullUrl, {
       headers: {
-        ...commonHeaders,
+        ...mobileHeaders,
         Referer: baseUrl,
         "X-Requested-With": "XMLHttpRequest",
       },
@@ -38,7 +47,7 @@ export const getStream = async function ({
 
     const res = await axios.post(fullUrl, postData, {
       headers: {
-        ...commonHeaders,
+        ...mobileHeaders,
         "Content-Type": "application/x-www-form-urlencoded",
         Referer: fullUrl,
         Origin: baseUrl,
@@ -54,8 +63,6 @@ export const getStream = async function ({
       /"(https?:\/\/[^"]+\.m3u8[^"]*)"|'(https?:\/\/[^']+\.m3u8[^']*)'|(?<=file\s*:\s*)(https?:\/\/[^\s,}]+\.m3u8[^\s,}]*)/gi;
     let match;
     const foundUrls = new Set<string>();
-
-    const mobileUA = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1";
 
     while ((match = m3u8Regex.exec(html)) !== null) {
       const rawUrl = match[1] || match[2] || match[3];
