@@ -17,7 +17,10 @@ export const getMeta = async function ({
   try {
     const res = await axios.get(fullUrl, {
       headers: {
-        ...commonHeaders,
+        "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+        "sec-ch-ua": '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+        "sec-ch-ua-mobile": "?1",
+        "sec-ch-ua-platform": '"Android"',
         Referer: baseUrl,
         "X-Requested-With": "XMLHttpRequest",
       },

@@ -13,7 +13,14 @@ export const getEpisodes = async function ({
   const fullUrl = url.startsWith("http") ? url : `${baseUrl}${url}`;
 
   try {
-    const res = await axios.get(fullUrl, { headers: commonHeaders });
+    const res = await axios.get(fullUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+        "sec-ch-ua": '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+        "sec-ch-ua-mobile": "?1",
+        "sec-ch-ua-platform": '"Android"',
+      },
+    });
     const $ = cheerio.load(res.data);
     const episodes: EpisodeLink[] = [];
 
