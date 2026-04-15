@@ -343,5 +343,13 @@
      "type": "global",
      "disabled": false,
      "hostnames": ["fanbroj.net", "daawo.xyz", "xamaali.cfd", "fanproj.net"]
+   },
+   {
+     "display_name": "LordFlix",
+     "value": "lordflix",
+     "version": "1.0",
+     "icon": "https://lordflix.org/mstile-150x150.png",
+     "type": "english",
+     "disabled": false
    }
 ]

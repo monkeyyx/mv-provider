@@ -1,0 +1,17 @@
+{
+  "id": "org.vega.providers",
+  "version": "1.0.0",
+  "name": "Vega Providers",
+  "description": "Multi-provider stream aggregator for Stremio",
+  "resources": [
+    "stream"
+  ],
+  "types": [
+    "movie",
+    "series"
+  ],
+  "idPrefixes": [
+    "tt"
+  ],
+  "catalogs": []
+}

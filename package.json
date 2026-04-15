@@ -11,7 +11,7 @@
     "test:single": "bun test-providers.js",
     "test:provider": "bun test-provider.js",
     "test:ui": "bun run test:interactive",
-    "build": "bun build-bundled.js",
+    "build": "node build-bundled.js",
     "build:dev": "cross-env SKIP_MINIFY=true bun build-bundled.js",
     "dev": "bun dev-server.js",
     "dev:build": "bun run build && bun run dev",
