@@ -217,13 +217,9 @@ async function buildAll() {
     0,
   );
 
-  // Copy manifest.json to dist
-  const manifestPath = path.join(__dirname, "manifest.json");
-  const distManifestPath = path.join(distDir, "manifest.json");
-  if (fs.existsSync(manifestPath)) {
-    fs.copyFileSync(manifestPath, distManifestPath);
-    console.log("✓ Compiled manifest.json copied to dist/");
-  }
+  // manifest.json is now handled by /api/stremio.js to support Stremio
+  // We keep it in root but don't copy to dist to allow vercel.json rewrites to work
+  console.log("ℹ manifest.json copy skipped (handled by API)");
 
   const endTime = Date.now();
   console.log(
