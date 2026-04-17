@@ -23,6 +23,21 @@ export const getStream = async function ({
     const idMatch = fullUrl.match(/id=(\d+)/);
     const mediaId = idMatch ? idMatch[1] : "";
 
+    const generateRandomPhone = () => {
+      let firstDigit;
+      do {
+        firstDigit = Math.floor(Math.random() * 9) + 1; // 1-9
+      } while (firstDigit === 6); // Avoid starting with 6 (matches '61' avoid requirement loosely)
+      
+      const length = Math.floor(Math.random() * 3) + 6; // 6 to 8 digits
+      let number = firstDigit.toString();
+      for (let i = 1; i < length; i++) {
+        number += Math.floor(Math.random() * 10).toString();
+      }
+      return number;
+    };
+
+    const randomPhone = generateRandomPhone();
     const mobileUA = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36";
     const mobileHeaders = {
       ...commonHeaders,
@@ -38,12 +53,13 @@ export const getStream = async function ({
         ...mobileHeaders,
         Referer: baseUrl,
         "X-Requested-With": "XMLHttpRequest",
+        Cookie: "", // Strictly no cookies for incognito behavior
       },
       signal,
     });
 
-    // Step 2: POST to bypass phone verification using 6112345678
-    const postData = `phone=6112345678&full_number=2526112345678${mediaId ? `&id=${mediaId}` : ""}`;
+    // Step 2: POST to bypass phone verification using random 6-8 digits
+    const postData = `phone=${randomPhone}&full_number=252${randomPhone}${mediaId ? `&id=${mediaId}` : ""}`;
 
     const res = await axios.post(fullUrl, postData, {
       headers: {
@@ -52,6 +68,7 @@ export const getStream = async function ({
         Referer: fullUrl,
         Origin: baseUrl,
         "X-Requested-With": "XMLHttpRequest",
+        Cookie: "", // Strictly no cookies
       },
       signal,
     });
@@ -69,12 +86,15 @@ export const getStream = async function ({
       if (rawUrl && !foundUrls.has(rawUrl)) {
         foundUrls.add(rawUrl);
 
+        // Clean the URL: strip sig and debug_ip
+        const cleanUrl = rawUrl.split('?')[0];
+
         streams.push({
           server: 'Govix-HLS',
-          link: rawUrl, // Preserve query parameters (tokens/sigs)
+          link: cleanUrl, 
           type: 'hls',
           headers: {
-            Cookie: '', // Stream host rejects session cookies
+            Cookie: '', 
             Referer: 'https://www.govixtv.com/',
             Origin: 'https://www.govixtv.com',
             "User-Agent": mobileUA,
