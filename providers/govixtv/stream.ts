@@ -58,6 +58,13 @@ export const getStream = async function ({
       ...chromeClientHints,
     };
 
+    // Helper to get headers case-insensitively
+    const getHeader = (headers: any, name: string) => {
+      const lowerName = name.toLowerCase();
+      const key = Object.keys(headers).find(k => k.toLowerCase() === lowerName);
+      return key ? headers[key] : undefined;
+    };
+
     // Step 1: GET to establish session and capture initial cookies
     const getRes = await axios.get(fullUrl, {
       headers: {
@@ -70,7 +77,11 @@ export const getStream = async function ({
     });
 
     // Capture cookies from GET
-    const initialCookies = getRes.headers['set-cookie'] || [];
+    const initialCookiesRaw = getHeader(getRes.headers, 'set-cookie');
+    const initialCookies: string[] = Array.isArray(initialCookiesRaw) 
+      ? initialCookiesRaw 
+      : (initialCookiesRaw ? [initialCookiesRaw] : []);
+    
     const cookieString = initialCookies.map(c => c.split(';')[0]).join('; ');
 
     // Step 2: POST to bypass phone verification using random 8 digits
@@ -89,13 +100,17 @@ export const getStream = async function ({
     });
 
     // Capture updated cookies from POST
-    const postCookies = res.headers['set-cookie'] || [];
+    const postCookiesRaw = getHeader(res.headers, 'set-cookie');
+    const postCookies: string[] = Array.isArray(postCookiesRaw) 
+      ? postCookiesRaw 
+      : (postCookiesRaw ? [postCookiesRaw] : []);
+
     const finalCookieString = [
         ...initialCookies,
         ...postCookies
     ].map(c => c.split(';')[0]).reduce((acc, curr) => {
         const [name] = curr.split('=');
-        if (!acc.find(item => item.startsWith(`${name}=`))) {
+        if (name && !acc.find(item => item.startsWith(`${name}=`))) {
             acc.push(curr);
         }
         return acc;
@@ -114,8 +129,7 @@ export const getStream = async function ({
       if (rawUrl && !foundUrls.has(rawUrl)) {
         foundUrls.add(rawUrl);
 
-        // Forward EVERYTHING to the native player: UA, Cookies, and Client Hints
-        // This makes the player indistinguishable from the browser session that just "logged in"
+        // Clean headers for the player to avoid bot detection
         streams.push({
           server: "Govix-HLS",
           link: rawUrl,
@@ -123,10 +137,8 @@ export const getStream = async function ({
           headers: {
             "User-Agent": desktopUA,
             Referer: fullUrl,
-            Origin: baseUrl,
-            Cookie: finalCookieString, // CRITICAL: Use the session cookie we just created
-            ...chromeClientHints,      // CRITICAL: Mimic Desktop to avoid 'Suu Player' redirection
-            "X-Requested-With": "XMLHttpRequest",
+            Origin: "https://www.govixtv.com",
+            Cookie: finalCookieString,
           },
           quality: "1080",
         });
