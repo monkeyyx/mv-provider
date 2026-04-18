@@ -28,7 +28,7 @@ export const getStream = async function ({
       do {
         firstDigit = Math.floor(Math.random() * 9) + 1; // 1-9
       } while (firstDigit === 6); // Avoid starting with 6 (matches '61' avoid requirement loosely)
-      
+
       const length = Math.floor(Math.random() * 3) + 6; // 6 to 8 digits
       let number = firstDigit.toString();
       for (let i = 1; i < length; i++) {
@@ -38,19 +38,21 @@ export const getStream = async function ({
     };
 
     const randomPhone = generateRandomPhone();
-    const mobileUA = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36";
-    const mobileHeaders = {
+    const desktopUA =
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+    const desktopHeaders = {
       ...commonHeaders,
-      "User-Agent": mobileUA,
-      "sec-ch-ua": '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
-      "sec-ch-ua-mobile": "?1",
-      "sec-ch-ua-platform": '"Android"',
+      "User-Agent": desktopUA,
+      "sec-ch-ua":
+        '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": '"Windows"',
     };
 
     // Step 1: GET to establish session (cookies are now ignored to avoid restrictions)
     const getRes = await axios.get(fullUrl, {
       headers: {
-        ...mobileHeaders,
+        ...desktopHeaders,
         Referer: baseUrl,
         "X-Requested-With": "XMLHttpRequest",
         Cookie: "", // Strictly no cookies for incognito behavior
@@ -63,7 +65,7 @@ export const getStream = async function ({
 
     const res = await axios.post(fullUrl, postData, {
       headers: {
-        ...mobileHeaders,
+        ...desktopHeaders,
         "Content-Type": "application/x-www-form-urlencoded",
         Referer: fullUrl,
         Origin: baseUrl,
@@ -87,19 +89,19 @@ export const getStream = async function ({
         foundUrls.add(rawUrl);
 
         // Clean the URL: strip sig and debug_ip
-        const cleanUrl = rawUrl.split('?')[0];
+        const cleanUrl = rawUrl.split("?")[0];
 
         streams.push({
-          server: 'Govix-HLS',
-          link: cleanUrl, 
-          type: 'hls',
+          server: "Govix-HLS",
+          link: cleanUrl,
+          type: "hls",
           headers: {
-            Cookie: '', 
-            Referer: 'https://www.govixtv.com/',
-            Origin: 'https://www.govixtv.com',
-            "User-Agent": mobileUA,
+            Cookie: "",
+            Referer: "https://www.govixtv.com/",
+            Origin: "https://www.govixtv.com",
+            "User-Agent": desktopUA,
           },
-          quality: '1080',
+          quality: "1080",
         });
       }
     }

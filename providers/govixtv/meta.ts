@@ -15,16 +15,18 @@ export const getMeta = async function ({
   const fullUrl = link.startsWith("http") ? link : `${baseUrl}${link}`;
 
   try {
-    const mobileUA = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36";
+    const desktopUA =
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
     const res = await axios.get(fullUrl, {
       headers: {
-        "User-Agent": mobileUA,
-        "sec-ch-ua": '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
-        "sec-ch-ua-mobile": "?1",
-        "sec-ch-ua-platform": '"Android"',
+        "User-Agent": desktopUA,
+        "sec-ch-ua":
+          '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": '"Windows"',
         Referer: baseUrl,
         "X-Requested-With": "XMLHttpRequest",
-        Cookie: "", // Strictly no cookies
+        Cookie: "", // Strictly no cookies (Incognito Mode)
       },
     });
     const $ = cheerio.load(res.data);
