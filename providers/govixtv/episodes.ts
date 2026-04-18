@@ -7,41 +7,51 @@ export const getEpisodes = async function ({
   url: string;
   providerContext: ProviderContext;
 }): Promise<EpisodeLink[]> {
-  const { axios, cheerio, getBaseUrl, commonHeaders } = providerContext;
-  const baseUrl = (await getBaseUrl("govixtv")) || "https://www.govixtv.com";
-
-  const fullUrl = url.startsWith("http") ? url : `${baseUrl}${url}`;
+  const { axios } = providerContext;
 
   try {
-    const desktopUA =
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+    // Check if it's a proxy link
+    if (url.startsWith("proxy_id:")) {
+      const id = url.replace("proxy_id:", "");
+      const res = await axios.get(`https://test.xaliye4.online/api/series-videos/${id}`, {
+        headers: {
+          "ppkey": "Hg4fPewbcGfBTskQQE5mktC2vgEHT9GX",
+          "User-Agent": "SoodagLives/1.1",
+        }
+      });
+
+      const data = res.data;
+      if (!Array.isArray(data)) return [];
+
+      return data.map((item: any) => ({
+        title: item.title,
+        link: item.m3u8_link, // The API returns the direct M3U8 link!
+      }));
+    }
+
+    // Fallback to legacy scraping (if still needed)
+    const baseUrl = (await providerContext.getBaseUrl("govixtv")) || "https://www.govixtv.com";
+    const fullUrl = url.startsWith("http") ? url : `${baseUrl}${url}`;
+    
+    const desktopUA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
     const res = await axios.get(fullUrl, {
       headers: {
         "User-Agent": desktopUA,
-        "sec-ch-ua":
-          '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
-        "sec-ch-ua-mobile": "?0",
-        "sec-ch-ua-platform": '"Windows"',
-        Cookie: "", // Strictly no cookies (Incognito/Cognito Mode)
+        Cookie: "", 
       },
     });
-    const $ = cheerio.load(res.data);
+    const $ = providerContext.cheerio.load(res.data);
     const episodes: EpisodeLink[] = [];
 
-    // Updated selectors for GovixTV series episodes page
     $(".episode-col").each((_, element) => {
       const el = $(element);
       const title = el.find(".episode-title").text().trim();
       const relativeLink = el.find("a.btn-watch").attr("href") || "";
 
       if (title && relativeLink) {
-        const fullEpLink = relativeLink.startsWith("http")
-          ? relativeLink
-          : `${baseUrl}/${relativeLink.replace(/^\//, "")}`;
-
         episodes.push({
           title,
-          link: fullEpLink,
+          link: relativeLink.startsWith("http") ? relativeLink : `${baseUrl}/${relativeLink.replace(/^\//, "")}`,
         });
       }
     });
@@ -52,3 +62,4 @@ export const getEpisodes = async function ({
     return [];
   }
 };
+

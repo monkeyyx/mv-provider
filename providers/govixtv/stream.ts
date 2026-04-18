@@ -11,9 +11,25 @@ export const getStream = async function ({
   signal: AbortSignal;
   providerContext: ProviderContext;
 }): Promise<Stream[]> {
-  const { axios, getBaseUrl, commonHeaders } = providerContext;
+  const { axios, getBaseUrl } = providerContext;
   const baseUrl = (await getBaseUrl("govixtv")) || "https://www.govixtv.com";
 
+  // Case 1: Direct M3U8 link from Proxy API
+  if (link.includes(".m3u8")) {
+    return [{
+      server: "Govix-Direct",
+      link: link,
+      type: "hls",
+      headers: {
+        "User-Agent": "SoodagLives/1.1",
+        "ppkey": "Hg4fPewbcGfBTskQQE5mktC2vgEHT9GX",
+        "Referer": "https://www.govixtv.com/",
+      },
+      quality: "1080",
+    }];
+  }
+
+  // Case 2: Standard GovixTV link - apply the ppkey and phone bypass
   const fullUrl = link.startsWith("http")
     ? link
     : `${baseUrl}${link.startsWith("/") ? "" : "/"}${link}`;
@@ -24,121 +40,62 @@ export const getStream = async function ({
     const mediaId = idMatch ? idMatch[1] : "";
 
     const generateRandomPhone = () => {
-      // Requirements: exactly 8 digits, not starting with '61'
       const digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-
       const getNumber = () => {
         let res = '';
-        for (let i = 0; i < 8; i++) {
-          res += digits[Math.floor(Math.random() * 10)];
-        }
+        for (let i = 0; i < 8; i++) res += digits[Math.floor(Math.random() * 10)];
         return res;
       };
-
       let number = getNumber();
-      while (number.startsWith('61')) {
-        number = getNumber();
-      }
+      while (number.startsWith('61')) number = getNumber();
       return number;
     };
 
     const randomPhone = generateRandomPhone();
-    const desktopUA =
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
-    
-    const chromeClientHints = {
-      "sec-ch-ua": '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
-      "sec-ch-ua-mobile": "?0",
-      "sec-ch-ua-platform": '"Windows"',
+    const headers = {
+      "User-Agent": "SoodagLives/1.1",
+      "ppkey": "Hg4fPewbcGfBTskQQE5mktC2vgEHT9GX", // Authenticate as Suu Player
+      "X-Requested-With": "XMLHttpRequest",
     };
 
-    const desktopHeaders = {
-      ...commonHeaders,
-      "User-Agent": desktopUA,
-      ...chromeClientHints,
-    };
-
-    // Helper to get headers case-insensitively
-    const getHeader = (headers: any, name: string) => {
-      const lowerName = name.toLowerCase();
-      const key = Object.keys(headers).find(k => k.toLowerCase() === lowerName);
-      return key ? headers[key] : undefined;
-    };
-
-    // Step 1: GET to establish session and capture initial cookies
+    // Step 1: GET to establish session
     const getRes = await axios.get(fullUrl, {
-      headers: {
-        ...desktopHeaders,
-        Referer: baseUrl,
-        "X-Requested-With": "XMLHttpRequest",
-        Cookie: "", // Start fresh
-      },
+      headers: { ...headers, Referer: baseUrl, Cookie: "" },
       signal,
     });
 
-    // Capture cookies from GET
-    const initialCookiesRaw = getHeader(getRes.headers, 'set-cookie');
-    const initialCookies: string[] = Array.isArray(initialCookiesRaw) 
-      ? initialCookiesRaw 
-      : (initialCookiesRaw ? [initialCookiesRaw] : []);
-    
-    const cookieString = initialCookies.map(c => c.split(';')[0]).join('; ');
+    const setCookie = getRes.headers['set-cookie'];
+    const cookie = Array.isArray(setCookie) ? setCookie.map(c => c.split(';')[0]).join('; ') : "";
 
-    // Step 2: POST to bypass phone verification using random 8 digits
+    // Step 2: POST to bypass phone verification
     const postData = `phone=${randomPhone}&full_number=252${randomPhone}${mediaId ? `&id=${mediaId}` : ""}`;
-
     const res = await axios.post(fullUrl, postData, {
       headers: {
-        ...desktopHeaders,
+        ...headers,
         "Content-Type": "application/x-www-form-urlencoded",
         Referer: fullUrl,
         Origin: baseUrl,
-        "X-Requested-With": "XMLHttpRequest",
-        Cookie: cookieString, // Send the cookies we just got
+        Cookie: cookie,
       },
       signal,
     });
 
-    // Capture updated cookies from POST
-    const postCookiesRaw = getHeader(res.headers, 'set-cookie');
-    const postCookies: string[] = Array.isArray(postCookiesRaw) 
-      ? postCookiesRaw 
-      : (postCookiesRaw ? [postCookiesRaw] : []);
-
-    const finalCookieString = [
-        ...initialCookies,
-        ...postCookies
-    ].map(c => c.split(';')[0]).reduce((acc, curr) => {
-        const [name] = curr.split('=');
-        if (name && !acc.find(item => item.startsWith(`${name}=`))) {
-            acc.push(curr);
-        }
-        return acc;
-    }, [] as string[]).join('; ');
-
     const html = res.data;
-
-    // Extraction Logic: Look for .m3u8 links
-    const m3u8Regex =
-      /"(https?:\/\/[^"]+\.m3u8[^"]*)"|'(https?:\/\/[^']+\.m3u8[^']*)'|(?<=file\s*:\s*)(https?:\/\/[^\s,}]+\.m3u8[^\s,}]*)/gi;
+    const m3u8Regex = /"(https?:\/\/[^"]+\.m3u8[^"]*)"/gi;
     let match;
     const foundUrls = new Set<string>();
 
     while ((match = m3u8Regex.exec(html)) !== null) {
-      const rawUrl = match[1] || match[2] || match[3];
+      const rawUrl = match[1];
       if (rawUrl && !foundUrls.has(rawUrl)) {
         foundUrls.add(rawUrl);
-
-        // Clean headers for the player to avoid bot detection
         streams.push({
-          server: "Govix-HLS",
+          server: "Govix-Verified",
           link: rawUrl,
           type: "hls",
           headers: {
-            "User-Agent": desktopUA,
+            ...headers,
             Referer: fullUrl,
-            Origin: "https://www.govixtv.com",
-            Cookie: finalCookieString,
           },
           quality: "1080",
         });
@@ -152,3 +109,4 @@ export const getStream = async function ({
     return [];
   }
 };
+

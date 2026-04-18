@@ -13,74 +13,39 @@ export const getPosts = async function ({
   signal: AbortSignal;
   providerContext: ProviderContext;
 }): Promise<Post[]> {
-  const { axios, cheerio, getBaseUrl, commonHeaders } = providerContext;
-  const baseUrl =
-    (await getBaseUrl(providerValue)) || "https://www.govixtv.com";
+  const { axios } = providerContext;
 
   if (page > 1) {
     return [];
   }
 
-  const url = `${baseUrl}${filter}`;
+  // Map filters to API endpoints
+  // Movies: /movie.php -> https://test.xaliye4.online/api/movies?page=all
+  // Series: /musasal.php -> https://test.xaliye4.online/api/series
+  const apiEndpoint = filter.includes("movie") 
+    ? "https://test.xaliye4.online/api/movies?page=all" 
+    : "https://test.xaliye4.online/api/series";
 
   try {
-    const desktopUA =
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
-    const res = await axios.get(url, {
+    const res = await axios.get(apiEndpoint, {
       headers: {
-        "User-Agent": desktopUA,
-        "sec-ch-ua":
-          '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
-        "sec-ch-ua-mobile": "?0",
-        "sec-ch-ua-platform": '"Windows"',
-        Referer: baseUrl,
-        "X-Requested-With": "XMLHttpRequest",
-        Cookie: "", // Strictly no cookies (Incognito Mode)
+        "ppkey": "Hg4fPewbcGfBTskQQE5mktC2vgEHT9GX", // Discovered in Suu Player APK
+        "User-Agent": "SoodagLives/1.1",
       },
       signal,
     });
-    const $ = cheerio.load(res.data);
-    const posts: Post[] = [];
 
-    // Parse Movie Cards
-    $(".movie-col .movie-card").each((_, element) => {
-      const el = $(element);
-      const title = el.find(".card-title").text().trim();
-      const image = el.find("img.movie-poster").attr("data-src") || "";
-      const relativeLink = el.find("a.btn-play").attr("href") || "";
+    const data = res.data;
+    if (!Array.isArray(data)) return [];
 
-      if (title && relativeLink) {
-        posts.push({
-          title,
-          image,
-          link: relativeLink.startsWith("/")
-            ? relativeLink
-            : `/${relativeLink}`,
-          provider: providerValue,
-        });
-      }
-    });
+    return data.map((item: any) => ({
+      title: item.title,
+      image: item.logo || "",
+      // Use a special prefix to signal getStream/getEpisodes to use the API logic
+      link: `proxy_id:${item.id}`,
+      provider: providerValue,
+    }));
 
-    // Parse Series Cards (Musasal)
-    $(".series-card").each((_, element) => {
-      const el = $(element);
-      const title = el.find(".series-title").text().trim();
-      const image = el.find("img.series-poster").attr("data-src") || "";
-      const relativeLink = el.find("a.btn-episodes").attr("href") || "";
-
-      if (title && relativeLink) {
-        posts.push({
-          title,
-          image,
-          link: relativeLink.startsWith("/")
-            ? relativeLink
-            : `/${relativeLink}`,
-          provider: providerValue,
-        });
-      }
-    });
-
-    return posts;
   } catch (error) {
     console.error(`GovixTV getPosts Error: ${error}`);
     return [];
@@ -102,3 +67,4 @@ export const getSearchPosts = async function ({
 }): Promise<Post[]> {
   return [];
 };
+
