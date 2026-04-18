@@ -24,15 +24,20 @@ export const getStream = async function ({
     const mediaId = idMatch ? idMatch[1] : "";
 
     const generateRandomPhone = () => {
-      let firstDigit;
-      do {
-        firstDigit = Math.floor(Math.random() * 9) + 1; // 1-9
-      } while (firstDigit === 6); // Avoid starting with 6 (matches '61' avoid requirement loosely)
+      // Requirements: exactly 8 digits, not starting with '61'
+      const digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
-      const length = Math.floor(Math.random() * 3) + 6; // 6 to 8 digits
-      let number = firstDigit.toString();
-      for (let i = 1; i < length; i++) {
-        number += Math.floor(Math.random() * 10).toString();
+      const getNumber = () => {
+        let res = '';
+        for (let i = 0; i < 8; i++) {
+          res += digits[Math.floor(Math.random() * 10)];
+        }
+        return res;
+      };
+
+      let number = getNumber();
+      while (number.startsWith('61')) {
+        number = getNumber();
       }
       return number;
     };
@@ -50,7 +55,7 @@ export const getStream = async function ({
     };
 
     // Step 1: GET to establish session (cookies are now ignored to avoid restrictions)
-    const getRes = await axios.get(fullUrl, {
+    await axios.get(fullUrl, {
       headers: {
         ...desktopHeaders,
         Referer: baseUrl,
@@ -60,7 +65,7 @@ export const getStream = async function ({
       signal,
     });
 
-    // Step 2: POST to bypass phone verification using random 6-8 digits
+    // Step 2: POST to bypass phone verification using random 8 digits
     const postData = `phone=${randomPhone}&full_number=252${randomPhone}${mediaId ? `&id=${mediaId}` : ""}`;
 
     const res = await axios.post(fullUrl, postData, {
@@ -88,18 +93,17 @@ export const getStream = async function ({
       if (rawUrl && !foundUrls.has(rawUrl)) {
         foundUrls.add(rawUrl);
 
-        // Clean the URL: strip sig and debug_ip
-        const cleanUrl = rawUrl.split("?")[0];
-
+        // Keep the full URL including sig and debug_ip as they might be required for auth
+        // but ensure we pass clean headers to stay in "Incognito" mode
         streams.push({
           server: "Govix-HLS",
-          link: cleanUrl,
+          link: rawUrl,
           type: "hls",
           headers: {
-            Cookie: "",
-            Referer: "https://www.govixtv.com/",
-            Origin: "https://www.govixtv.com",
             "User-Agent": desktopUA,
+            Referer: fullUrl,
+            Origin: "https://www.govixtv.com",
+            Cookie: "", // IMPORTANT: Empty cookie to bypass Suu Player/Account Expired block
           },
           quality: "1080",
         });
