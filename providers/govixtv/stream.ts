@@ -44,26 +44,34 @@ export const getStream = async function ({
 
     const randomPhone = generateRandomPhone();
     const desktopUA =
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
-    const desktopHeaders = {
-      ...commonHeaders,
-      "User-Agent": desktopUA,
-      "sec-ch-ua":
-        '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
+    
+    const chromeClientHints = {
+      "sec-ch-ua": '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
       "sec-ch-ua-mobile": "?0",
       "sec-ch-ua-platform": '"Windows"',
     };
 
-    // Step 1: GET to establish session (cookies are now ignored to avoid restrictions)
-    await axios.get(fullUrl, {
+    const desktopHeaders = {
+      ...commonHeaders,
+      "User-Agent": desktopUA,
+      ...chromeClientHints,
+    };
+
+    // Step 1: GET to establish session and capture initial cookies
+    const getRes = await axios.get(fullUrl, {
       headers: {
         ...desktopHeaders,
         Referer: baseUrl,
         "X-Requested-With": "XMLHttpRequest",
-        Cookie: "", // Strictly no cookies for incognito behavior
+        Cookie: "", // Start fresh
       },
       signal,
     });
+
+    // Capture cookies from GET
+    const initialCookies = getRes.headers['set-cookie'] || [];
+    const cookieString = initialCookies.map(c => c.split(';')[0]).join('; ');
 
     // Step 2: POST to bypass phone verification using random 8 digits
     const postData = `phone=${randomPhone}&full_number=252${randomPhone}${mediaId ? `&id=${mediaId}` : ""}`;
@@ -75,10 +83,23 @@ export const getStream = async function ({
         Referer: fullUrl,
         Origin: baseUrl,
         "X-Requested-With": "XMLHttpRequest",
-        Cookie: "", // Strictly no cookies
+        Cookie: cookieString, // Send the cookies we just got
       },
       signal,
     });
+
+    // Capture updated cookies from POST
+    const postCookies = res.headers['set-cookie'] || [];
+    const finalCookieString = [
+        ...initialCookies,
+        ...postCookies
+    ].map(c => c.split(';')[0]).reduce((acc, curr) => {
+        const [name] = curr.split('=');
+        if (!acc.find(item => item.startsWith(`${name}=`))) {
+            acc.push(curr);
+        }
+        return acc;
+    }, [] as string[]).join('; ');
 
     const html = res.data;
 
@@ -93,8 +114,8 @@ export const getStream = async function ({
       if (rawUrl && !foundUrls.has(rawUrl)) {
         foundUrls.add(rawUrl);
 
-        // Keep the full URL including sig and debug_ip as they might be required for auth
-        // but ensure we pass clean headers to stay in "Incognito" mode
+        // Forward EVERYTHING to the native player: UA, Cookies, and Client Hints
+        // This makes the player indistinguishable from the browser session that just "logged in"
         streams.push({
           server: "Govix-HLS",
           link: rawUrl,
@@ -102,8 +123,10 @@ export const getStream = async function ({
           headers: {
             "User-Agent": desktopUA,
             Referer: fullUrl,
-            Origin: "https://www.govixtv.com",
-            Cookie: "", // IMPORTANT: Empty cookie to bypass Suu Player/Account Expired block
+            Origin: baseUrl,
+            Cookie: finalCookieString, // CRITICAL: Use the session cookie we just created
+            ...chromeClientHints,      // CRITICAL: Mimic Desktop to avoid 'Suu Player' redirection
+            "X-Requested-With": "XMLHttpRequest",
           },
           quality: "1080",
         });
@@ -111,6 +134,7 @@ export const getStream = async function ({
     }
 
     return streams;
+
   } catch (error) {
     console.error(`GovixTV getStream Error: ${error}`);
     return [];
