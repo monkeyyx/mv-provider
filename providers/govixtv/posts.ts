@@ -13,39 +13,61 @@ export const getPosts = async function ({
   signal: AbortSignal;
   providerContext: ProviderContext;
 }): Promise<Post[]> {
-  const { axios } = providerContext;
+  const { axios, cheerio, getBaseUrl } = providerContext;
+  const baseUrl = (await getBaseUrl(providerValue)) || "https://www.govixtv.com";
 
-  if (page > 1) {
-    return [];
-  }
+  if (page > 1) return [];
 
-  // Map filters to API endpoints
-  // Movies: /movie.php -> https://test.xaliye4.online/api/movies?page=all
-  // Series: /musasal.php -> https://test.xaliye4.online/api/series
-  const apiEndpoint = filter.includes("movie") 
-    ? "https://test.xaliye4.online/api/movies?page=all" 
-    : "https://test.xaliye4.online/api/series";
-
+  const url = `${baseUrl}${filter}`;
   try {
-    const res = await axios.get(apiEndpoint, {
+    const desktopUA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+    const res = await axios.get(url, {
       headers: {
-        "ppkey": "Hg4fPewbcGfBTskQQE5mktC2vgEHT9GX", // Discovered in Suu Player APK
-        "User-Agent": "SoodagLives/1.1",
+        "User-Agent": desktopUA,
+        Referer: baseUrl,
+        Cookie: "", 
       },
       signal,
     });
 
-    const data = res.data;
-    if (!Array.isArray(data)) return [];
+    const $ = cheerio.load(res.data);
+    const posts: Post[] = [];
 
-    return data.map((item: any) => ({
-      title: item.title,
-      image: item.logo || "",
-      // Use a structured proxy link to pass metadata downstream avoiding extra scraping
-      link: `proxy_id::${item.type || (filter.includes("movie") ? "movie" : "series")}::${item.id}::${item.title}::${item.logo || ""}::${item.m3u8_link || ""}`,
-      provider: providerValue,
-    }));
+    // Scrape Movies
+    $(".movie-col .movie-card").each((_, element) => {
+      const el = $(element);
+      const title = el.find(".card-title").text().trim();
+      const image = el.find("img.movie-poster").attr("data-src") || el.find("img.movie-poster").attr("src") || "";
+      const relativeLink = el.find("a.btn-play").attr("href") || "";
 
+      if (title && relativeLink) {
+        posts.push({
+          title,
+          image,
+          link: relativeLink.startsWith("/") ? relativeLink : `/${relativeLink}`,
+          provider: providerValue,
+        });
+      }
+    });
+
+    // Scrape Series
+    $(".series-card").each((_, element) => {
+      const el = $(element);
+      const title = el.find(".series-title").text().trim();
+      const image = el.find("img.series-poster").attr("data-src") || el.find("img.series-poster").attr("src") || "";
+      const relativeLink = el.find("a.btn-episodes").attr("href") || "";
+
+      if (title && relativeLink) {
+        posts.push({
+          title,
+          image,
+          link: relativeLink.startsWith("/") ? relativeLink : `/${relativeLink}`,
+          provider: providerValue,
+        });
+      }
+    });
+
+    return posts;
   } catch (error) {
     console.error(`GovixTV getPosts Error: ${error}`);
     return [];

@@ -9,37 +9,26 @@ export const getMeta = async function ({
   provider: string;
   providerContext: ProviderContext;
 }): Promise<Info> {
-  const { axios, cheerio, getBaseUrl, commonHeaders } = providerContext;
+  const { axios, cheerio, getBaseUrl } = providerContext;
   const baseUrl = (await getBaseUrl(provider)) || "https://www.govixtv.com";
+  const fullUrl = link.startsWith("http") ? link : `${baseUrl}${link}`;
 
-  // Handle proxy links from the API to avoid Network Errors from invalid URLs
+  // Fallback handle proxy links if they somehow sneak in
   if (link.startsWith("proxy_id::")) {
     const [_, type, id, title, image, stream] = link.split("::");
-    const isSeries = type === "series";
-
     return {
       title: title || "Govix TV Content",
       image: image || "",
-      synopsis: "No synopsis available for this content.",
+      synopsis: "No synopsis available.",
       imdbId: "",
-      type: isSeries ? "series" : "movie",
-      linkList: [
-        {
-          title: isSeries ? "Seasons" : "Stream",
-          episodesLink: isSeries ? link : undefined,
-          directLinks: isSeries ? [] : [
-            {
-              title: "Watch Direct",
-              link: stream || link,
-              type: "movie",
-            }
-          ]
-        }
-      ]
+      type: type === "series" ? "series" : "movie",
+      linkList: [{
+        title: type === "series" ? "Seasons" : "Stream",
+        episodesLink: type === "series" ? link : undefined,
+        directLinks: type === "series" ? [] : [{ title: "Watch Direct", link: stream || link, type: "movie" }]
+      }]
     };
   }
-
-  const fullUrl = link.startsWith("http") ? link : `${baseUrl}${link}`;
 
   try {
     const desktopUA =
