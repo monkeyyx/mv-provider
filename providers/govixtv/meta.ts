@@ -12,6 +12,33 @@ export const getMeta = async function ({
   const { axios, cheerio, getBaseUrl, commonHeaders } = providerContext;
   const baseUrl = (await getBaseUrl(provider)) || "https://www.govixtv.com";
 
+  // Handle proxy links from the API to avoid Network Errors from invalid URLs
+  if (link.startsWith("proxy_id::")) {
+    const [_, type, id, title, image, stream] = link.split("::");
+    const isSeries = type === "series";
+
+    return {
+      title: title || "Govix TV Content",
+      image: image || "",
+      synopsis: "No synopsis available for this content.",
+      imdbId: "",
+      type: isSeries ? "series" : "movie",
+      linkList: [
+        {
+          title: isSeries ? "Seasons" : "Stream",
+          episodesLink: isSeries ? link : undefined,
+          directLinks: isSeries ? [] : [
+            {
+              title: "Watch Direct",
+              link: stream || link,
+              type: "movie",
+            }
+          ]
+        }
+      ]
+    };
+  }
+
   const fullUrl = link.startsWith("http") ? link : `${baseUrl}${link}`;
 
   try {

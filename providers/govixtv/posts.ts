@@ -41,8 +41,8 @@ export const getPosts = async function ({
     return data.map((item: any) => ({
       title: item.title,
       image: item.logo || "",
-      // Use a special prefix to signal getStream/getEpisodes to use the API logic
-      link: `proxy_id:${item.id}`,
+      // Use a structured proxy link to pass metadata downstream avoiding extra scraping
+      link: `proxy_id::${item.type || (filter.includes("movie") ? "movie" : "series")}::${item.id}::${item.title}::${item.logo || ""}::${item.m3u8_link || ""}`,
       provider: providerValue,
     }));
 

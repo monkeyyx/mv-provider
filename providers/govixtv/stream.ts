@@ -13,6 +13,26 @@ export const getStream = async function ({
 }): Promise<Stream[]> {
   const { axios, getBaseUrl } = providerContext;
   const baseUrl = (await getBaseUrl("govixtv")) || "https://www.govixtv.com";
+  
+  // Case 0: Structured Proxy link (contains direct M3U8 for movies)
+  if (link.startsWith("proxy_id::")) {
+    const [_, type, id, title, image, stream] = link.split("::");
+    if (type === "movie" && stream && stream.includes(".m3u8")) {
+      return [{
+        server: "Govix-Cloud",
+        link: stream,
+        type: "hls",
+        headers: {
+          "User-Agent": "SoodagLives/1.1",
+          "ppkey": "Hg4fPewbcGfBTskQQE5mktC2vgEHT9GX",
+          "Referer": "https://www.govixtv.com/",
+        },
+        quality: "1080",
+      }];
+    }
+    // Fallback: If it's something else but has proxy_id, try to use the ID in Case 2
+    link = link.split("::")[2] || link; 
+  }
 
   // Case 1: Direct M3U8 link from Proxy API
   if (link.includes(".m3u8")) {

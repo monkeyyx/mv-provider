@@ -12,7 +12,9 @@ export const getEpisodes = async function ({
   try {
     // Check if it's a proxy link
     if (url.startsWith("proxy_id:")) {
-      const id = url.replace("proxy_id:", "");
+      const parts = url.split("::");
+      const id = parts.length > 2 ? parts[2] : url.replace("proxy_id:", "");
+      
       const res = await axios.get(`https://test.xaliye4.online/api/series-videos/${id}`, {
         headers: {
           "ppkey": "Hg4fPewbcGfBTskQQE5mktC2vgEHT9GX",
