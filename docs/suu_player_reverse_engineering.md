@@ -47,15 +47,50 @@ The **OneSignal App ID** (`18535b84-230f-440a-b350-fe2ab4836a24`) is hardcoded. 
 
 ---
 
-## 4. Security Controls implemented by the Developer
-*   **VPN Blocker**: The class `com.soodag.lives.VpnBlocker` scans for active `TRANSPORT_VPN` network capabilities. If detected, the app shows a blocking dialog to prevent region-bypass.
-*   **Root Detection**: Subtle checks are present to verify if the device is rooted before allowing certain payment operations.
+## 4. Other Identified Vulnerabilities
+
+### Lack of Code Obfuscation (Trivial Reverse Engineering)
+The developer did not use tools like ProGuard or R8 effectively. 
+*   **The Flaw**: All class names (`TokenGenerator`, `UserManager`, `VpnBlocker`), method names, and string constants were stored in plaintext.
+*   **Implication**: This made finding the `ppkey` and internal APIs trivial.
+
+### Client-Side Validation Bypass (Payment Logic)
+The app’s payment system appears to rely on client-reported success status.
+*   **The Flaw**: In `PaymentActivity`, the app calls `https://test.xaliye4.online/orders2` to notify the server of a "success" after a transaction.
+*   **Risk**: If the server doesn't perform server-to-server verification, an attacker could spoof POST requests to `/orders2` with their phone number to activate a "Pro" subscription for free.
+
+### Persistent CDN Links (No Token Expiry)
+The stream URLs from `somapi.store` do not contain any session tokens or expiry parameters.
+*   **The Flaw**: `.m3u8` links lack `?token=` or `?expires=` parameters.
+*   **Risk**: Once extracted, links remain active indefinitely, allowing for unauthorized redistribution.
+
+### Insecure Local Storage (SharedPreferences)
+The app stores user session data in `UserSession.xml` in plaintext.
+*   **The Flaw**: Stores `id`, `number`, and `expires_at` (subscription date) without encryption.
+*   **Risk**: Combined with `allowBackup="true"`, an attacker can extract, modify the `expires_at` date, and restore it to gain a lifetime subscription.
+
+### Information Disclosure (Server Headers)
+The backend servers leak software version information in HTTP headers.
+*   **Exposure**: `nginx/1.24.0 (Ubuntu)`, `X-Powered-By: Express`.
+*   **Risk**: Simplifies the search for version-specific CVEs for server-level attacks.
+
+### Weak VPN Blocking
+The `VpnBlocker` class uses basic Android-level checks that are easily bypassed.
+*   **The Flaw**: Does not use sophisticated IP/ISP reputation databases.
+*   **Risk**: Easily defeated by custom proxies or simple code modification (smali patching).
 
 ---
 
-## 5. Implementation in Vega
+## 5. Security Controls implemented by the Developer
+*   **VPN Blocker**: Class `com.soodag.lives.VpnBlocker` scans for active `TRANSPORT_VPN` flags.
+*   **Root Detection**: Subtle checks present to verify if the device is rooted before payment operations.
+
+---
+
+## 6. Implementation in Vega
 To bypass GovixTV restrictions permanently, the Vega provider now:
 1.  Intercepts discovery requests and redirects them to the `test.xaliye4.online` API.
-2.  Injects the `ppkey: Hg4fPewbcGfBTskQQE5mktC2vgEHT9GX` header into all metadata and stream requests.
+2.  Injects the `ppkey: Hg4fPewbcGfBTskQQE5mktC2vgEHT9GX` header into all requests.
 3.  Mimics the Suu Player User-Agent: `SoodagLives/1.1`.
 4.  Extracts direct `somapi.store` links for unrestricted playback.
+
