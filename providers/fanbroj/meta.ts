@@ -1,6 +1,7 @@
 import { Info, ProviderContext } from "../types";
 
-const DEFAULT_IMAGE = "https://placehold.jp/24/363636/ffffff/500x750.png?text=Fanbroj";
+const DEFAULT_IMAGE =
+  "https://placehold.jp/24/363636/ffffff/500x750.png?text=Fanbroj";
 
 export const getMeta = async function ({
   link,
@@ -15,10 +16,11 @@ export const getMeta = async function ({
   const { axios, commonHeaders } = providerContext;
 
   const baseUrl = "https://fanbroj.net";
-  
+
   // link format: /movies/[slug] or /series/[slug] or legacy /series_episodes.php?id=[id]
-  const isSeries = link.includes("/series/") || link.includes("series_episodes.php");
-  
+  const isSeries =
+    link.includes("/series/") || link.includes("series_episodes.php");
+
   // Extract slug/id
   let slug = "";
   if (link.includes("id=")) {
@@ -26,10 +28,10 @@ export const getMeta = async function ({
   } else {
     slug = link.split("/").pop() || "";
   }
-  
+
   let apiUrl = "";
   if (isSeries) {
-    // If it's a numeric ID from legacy links, we might need a different logic, 
+    // If it's a numeric ID from legacy links, we might need a different logic,
     // but for now we try to use it as a slug.
     apiUrl = `${baseUrl}/api/series/${slug}`;
   } else {

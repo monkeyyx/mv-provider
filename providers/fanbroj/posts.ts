@@ -1,7 +1,8 @@
 import { Post, ProviderContext } from "../types";
 import { genres } from "./catalog";
 
-const DEFAULT_IMAGE = "https://placehold.jp/24/363636/ffffff/500x750.png?text=Fanbroj";
+const DEFAULT_IMAGE =
+  "https://placehold.jp/24/363636/ffffff/500x750.png?text=Fanbroj";
 const ABSOLUTE_URL_PATTERN = /^https?:\/\//i;
 
 const toAbsoluteUrl = (value: string | undefined, baseUrl: string): string => {
@@ -72,7 +73,7 @@ export const getPosts = async function ({
     if (!data) return [];
 
     // Movies API returns { movies: [...] }, Series API returns [...]
-    const items = isSeries ? data : (data.movies || []);
+    const items = isSeries ? data : data.movies || [];
 
     return items.map((item: any) => ({
       title: item.title,
@@ -206,4 +207,3 @@ export const getSearchPosts = async function ({
     return [];
   }
 };
-

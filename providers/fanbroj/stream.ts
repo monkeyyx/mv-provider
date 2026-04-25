@@ -12,11 +12,11 @@ export const getStream = async function ({
   providerContext: ProviderContext;
 }): Promise<Stream[]> {
   const { axios, commonHeaders } = providerContext;
-  
+
   // link format: https://xamaali.cfd/video/[id] or https://idaawo.xyz/video/[id]
   const idMatch = link.match(/\/video\/([a-zA-Z0-9]+)/);
   const id = idMatch ? idMatch[1] : "";
-  
+
   if (!id) return [];
 
   const host = new URL(link).origin;
@@ -25,20 +25,16 @@ export const getStream = async function ({
   try {
     // We need to bypass the player protection by sending a POST with the correct Referer
     // and potentially other headers.
-    const res = await axios.post(
-      playerUrl,
-      `data=${id}&do=getVideo`,
-      {
-        headers: {
-          ...commonHeaders,
-          "Content-Type": "application/x-www-form-urlencoded",
-          "X-Requested-With": "XMLHttpRequest",
-          Referer: link, // The player page itself
-          Origin: host,
-        },
-        signal,
-      }
-    );
+    const res = await axios.post(playerUrl, `data=${id}&do=getVideo`, {
+      headers: {
+        ...commonHeaders,
+        "Content-Type": "application/x-www-form-urlencoded",
+        "X-Requested-With": "XMLHttpRequest",
+        Referer: link, // The player page itself
+        Origin: host,
+      },
+      signal,
+    });
 
     const data = res.data;
     if (!data || !data.videoSource) {
@@ -56,7 +52,7 @@ export const getStream = async function ({
     if (ck.includes("\\x")) {
       try {
         decodedCk = ck.replace(/\\x([0-9a-fA-F]{2})/g, (_: any, hex: string) =>
-          String.fromCharCode(parseInt(hex, 16))
+          String.fromCharCode(parseInt(hex, 16)),
         );
       } catch (e) {
         console.error("Fanbroj ck decode error", e);

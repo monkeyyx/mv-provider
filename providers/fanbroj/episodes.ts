@@ -10,7 +10,7 @@ export const getEpisodes = async function ({
   console.log(`[Fanbroj] Fetching Episodes (v3.4.5) for: ${url}`);
   const { axios, commonHeaders } = providerContext;
   const baseUrl = "https://fanbroj.net";
-  
+
   // url format: /series/[slug] or legacy /series_episodes.php?id=[id]
   let slug = "";
   if (url.includes("id=")) {
@@ -18,7 +18,7 @@ export const getEpisodes = async function ({
   } else {
     slug = url.split("/").pop() || "";
   }
-  
+
   const apiUrl = `${baseUrl}/api/series/${slug}/episodes`;
 
   try {
@@ -34,7 +34,7 @@ export const getEpisodes = async function ({
     if (!data) return [];
 
     const episodes: EpisodeLink[] = [];
-    
+
     // data is a map of season numbers to arrays of episodes
     Object.keys(data).forEach((season) => {
       const seasonEpisodes = data[season];
