@@ -374,5 +374,13 @@
     "version": "1.0.0",
     "icon": "https://www.hdtoday.gd/images/group_1/theme_1/logo.png",
     "type": "global"
+  },
+  {
+    "display_name": "TurkMood",
+    "value": "turkmood",
+    "version": "1.0.0",
+    "icon": "https://krmzitv.app/favicon.ico",
+    "type": "global",
+    "disabled": false
   }
 ]
