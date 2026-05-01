@@ -1,6 +1,6 @@
 import { Info, ProviderContext, Link } from "../types";
 
-export const getMetaData = async ({
+export const getMeta = async ({
   link,
   provider,
   providerContext,
