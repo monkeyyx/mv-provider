@@ -26,5 +26,10 @@ export const getEpisodes = async function ({
 // Ensure CommonJS compatibility for dynamic loaders
 if (typeof module !== "undefined" && module.exports) {
   module.exports.getEpisodes = getEpisodes;
+  console.log("TurkMood episodes exported to module.exports. Keys:", Object.keys(module.exports));
+}
+if (typeof exports !== "undefined") {
+  exports.getEpisodes = getEpisodes;
+  console.log("TurkMood episodes exported to exports.");
 }
 
