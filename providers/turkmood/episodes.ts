@@ -1,8 +1,6 @@
 import { EpisodeLink, ProviderContext } from "../types";
 
-console.log("TurkMood episodes module loading...");
-
-export async function getEpisodes({
+export const getEpisodes = async function ({
   url,
   providerContext,
 }: {
@@ -23,4 +21,4 @@ export async function getEpisodes({
     console.error("turkmood getEpisodeLinks error:", error);
     return [];
   }
-}
+};
