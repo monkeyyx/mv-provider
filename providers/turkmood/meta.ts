@@ -9,9 +9,28 @@ export const getMeta = async ({
   provider: string;
   providerContext: ProviderContext;
 }): Promise<Info> => {
-  // `link` contains the ID of the movie or series.
-  // We return a single direct link that will be passed to `getStream`.
+  const { axios, cheerio } = providerContext;
   
+  let title = `Title (ID: ${link})`;
+  let image = "";
+  let synopsis = "Stream fetched via TurkMood API.";
+  let type = "movie";
+  
+  try {
+    const response = await axios.get(`https://krmzitv.app/?p=${link}`);
+    const $ = cheerio.load(response.data);
+    
+    title = $('meta[property="og:title"]').attr('content')?.replace(" - تطبيق قرمزي", "") || title;
+    image = $('meta[property="og:image"]').attr('content') || "";
+    synopsis = $('meta[property="og:description"]').attr('content') || synopsis;
+    
+    if (title.includes("مسلسل")) {
+      type = "series";
+    }
+  } catch (error) {
+    console.error("turkmood getMeta error:", error);
+  }
+
   const linkList: Link[] = [
     {
       title: "Watch",
@@ -19,18 +38,18 @@ export const getMeta = async ({
         {
           title: "Stream 1",
           link: link,
-          type: "movie", // We assume movie for now. If needed, we can adapt this for episodes.
+          type: type as "movie" | "series",
         }
       ]
     }
   ];
 
   return {
-    title: `Title (ID: ${link})`, // Title is not provided in metadata request
-    image: "",
-    synopsis: "Stream fetched via TurkMood API.",
+    title,
+    image,
+    synopsis,
     imdbId: "",
-    type: "movie",
+    type,
     linkList,
   };
 };
