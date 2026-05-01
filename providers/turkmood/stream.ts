@@ -28,7 +28,7 @@ export const getStream = async ({
         { label: "1080", v: "v1" },
         { label: "480", v: "v3" },
         { label: "360", v: "v4" },
-      ];
+      ] as const;
 
       return qualities.map(({ label, v }) => ({
         server: `TurkMood (${label}p)`,
