@@ -27,6 +27,8 @@ export const getPosts = async ({
       title: item.title,
       link: item.id.toString(), // Pass ID as link
       image: item.poster || "",
+      banner: item.poster || "", // Used for Hero section
+      background: item.poster || "", // Fallback for some player themes
       provider: providerValue,
     }));
   } catch (error) {
