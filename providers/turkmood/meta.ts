@@ -34,13 +34,14 @@ export const getMeta = async ({
   const linkList: Link[] = [
     {
       title: "Watch",
-      directLinks: [
+      directLinks: type === "movie" ? [
         {
           title: "Stream 1",
           link: link,
-          type: type as "movie" | "series",
+          type: "movie",
         }
-      ]
+      ] : [],
+      episodesLink: type === "series" ? `https://krmzitv.app/wp-json/api-3chk/v1/series/${link}` : undefined,
     }
   ];
 

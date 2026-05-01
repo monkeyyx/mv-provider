@@ -13,8 +13,10 @@ export const getStream = async ({
 }): Promise<Stream[]> => {
   const { axios } = providerContext;
   
-  // `link` here is the `movie_id`
-  const url = `https://krmzitv.app/wp-json/api-3chk/v1/movie-stream?movie_id=${link}`;
+  // `link` here is the `movie_id` or query string for episode
+  const url = type === "series" 
+    ? `https://krmzitv.app/wp-json/api-3chk/v1/episode?${link}`
+    : `https://krmzitv.app/wp-json/api-3chk/v1/movie-stream?movie_id=${link}`;
   
   try {
     const response = await axios.get(url, { signal });
