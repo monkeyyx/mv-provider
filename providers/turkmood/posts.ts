@@ -16,7 +16,8 @@ export const getPosts = async ({
   const { axios } = providerContext;
   
   // Example filter: "movies", "series"
-  const url = `https://krmzitv.app/wp-json/api-3chk/v1/${filter}?page=${page}`;
+  const connector = filter.includes("?") ? "&" : "?";
+  const url = `https://krmzitv.app/wp-json/api-3chk/v1/${filter}${connector}page=${page}`;
   
   try {
     const response = await axios.get(url, { signal });

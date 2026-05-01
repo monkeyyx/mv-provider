@@ -4,7 +4,6 @@ export const catalog: Catalog[] = [
   { title: "Turkish Movies", filter: "movies" },
   { title: "Turkish Series", filter: "series" },
   { title: "Translated Series (Subtitled)", filter: "translated-series" },
-  { title: "Dubbed Series", filter: "dubbed-series" },
 ];
 
 export const genres: Catalog[] = [
