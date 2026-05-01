@@ -1,5 +1,13 @@
 [
   {
+    "display_name": "Cineby",
+    "value": "cineby",
+    "version": "1.0",
+    "icon": "https://raw.githubusercontent.com/nvmindl/nuvio-providers/main/Assets/cineby.png",
+    "type": "global",
+    "disabled": false
+  },
+  {
     "display_name": "GovixTV",
     "value": "govixtv",
     "version": "1.2",
@@ -336,20 +344,35 @@
     "disabled": false
   },
   {
-     "display_name": "Fanbroj",
-     "value": "fanbroj",
-     "version": "3.4.5",
-     "icon": "https://fanbroj.net/favicon.ico",
-     "type": "global",
-     "disabled": false,
-     "hostnames": ["fanbroj.net", "daawo.xyz", "xamaali.cfd", "fanproj.net"]
-   },
-   {
-     "display_name": "LordFlix",
-     "value": "lordflix",
-     "version": "1.0",
-     "icon": "https://lordflix.org/mstile-150x150.png",
-     "type": "english",
-     "disabled": false
-   }
+    "display_name": "Fanbroj",
+    "value": "fanbroj",
+    "version": "3.4.5",
+    "icon": "https://fanbroj.net/favicon.ico",
+    "type": "global",
+    "disabled": false,
+    "hostnames": ["fanbroj.net", "daawo.xyz", "xamaali.cfd", "fanproj.net"]
+  },
+  {
+    "display_name": "LordFlix",
+    "value": "lordflix",
+    "version": "1.0",
+    "icon": "https://lordflix.org/mstile-150x150.png",
+    "type": "english",
+    "disabled": false
+  },
+  {
+    "display_name": "FaselHD",
+    "value": "faselhd",
+    "version": "1.0",
+    "icon": "https://raw.githubusercontent.com/nvmindl/nuvio-providers/main/Assets/faselhdx.png",
+    "type": "global",
+    "disabled": false
+  },
+  {
+    "value": "hdtoday",
+    "display_name": "HDToday",
+    "version": "1.0.0",
+    "icon": "https://www.hdtoday.gd/images/group_1/theme_1/logo.png",
+    "type": "global"
+  }
 ]
