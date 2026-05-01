@@ -12,7 +12,7 @@ export const getEpisodes = async function ({
     const response = await axios.get(url);
     const episodes = response.data.episodes || [];
     const seriesId = response.data.id;
-    
+
     return episodes.map((ep: any, index: number) => ({
       title: ep.title || `Episode ${index + 1}`,
       link: `series_id=${seriesId}&episode_index=${index}`,
@@ -26,10 +26,12 @@ export const getEpisodes = async function ({
 // Ensure CommonJS compatibility for dynamic loaders
 if (typeof module !== "undefined" && module.exports) {
   module.exports.getEpisodes = getEpisodes;
-  console.log("TurkMood episodes exported to module.exports. Keys:", Object.keys(module.exports));
+  console.log(
+    "TurkMood episodes exported to module.exports. Keys:",
+    Object.keys(module.exports),
+  );
 }
 if (typeof exports !== "undefined") {
   exports.getEpisodes = getEpisodes;
   console.log("TurkMood episodes exported to exports.");
 }
-

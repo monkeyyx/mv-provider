@@ -12,15 +12,16 @@ export const getStream = async ({
   providerContext: ProviderContext;
 }): Promise<Stream[]> => {
   const { axios } = providerContext;
-  
+
   // `link` here is the `movie_id` or query string for episode
-  const url = type === "series" 
-    ? `https://krmzitv.app/wp-json/api-3chk/v1/episode?${link}`
-    : `https://krmzitv.app/wp-json/api-3chk/v1/movie-stream?movie_id=${link}`;
-  
+  const url =
+    type === "series"
+      ? `https://krmzitv.app/wp-json/api-3chk/v1/episode?${link}`
+      : `https://krmzitv.app/wp-json/api-3chk/v1/movie-stream?movie_id=${link}`;
+
   try {
     const response = await axios.get(url, { signal });
-    
+
     if (response.data?.m3u8_url) {
       const m3u8Url = response.data.m3u8_url;
       const qualities = [
@@ -36,8 +37,9 @@ export const getStream = async ({
         type: "m3u8",
         quality: label,
         headers: {
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        }
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        },
       }));
     }
     return [];
