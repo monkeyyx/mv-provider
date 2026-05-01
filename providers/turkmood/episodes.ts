@@ -1,12 +1,12 @@
 import { EpisodeLink, ProviderContext } from "../types";
 
-export const getEpisodes = async ({
+export async function getEpisodes({
   url,
   providerContext,
 }: {
   url: string;
   providerContext: ProviderContext;
-}): Promise<EpisodeLink[]> => {
+}): Promise<EpisodeLink[]> {
   const { axios } = providerContext;
   try {
     const response = await axios.get(url);
@@ -21,4 +21,4 @@ export const getEpisodes = async ({
     console.error("turkmood getEpisodeLinks error:", error);
     return [];
   }
-};
+}
