@@ -24,8 +24,8 @@ export const getStream = async ({
     if (response.data?.m3u8_url) {
       const m3u8Url = response.data.m3u8_url;
       const qualities = [
-        { label: "1080", v: "v1" },
         { label: "720", v: "v2" },
+        { label: "1080", v: "v1" },
         { label: "480", v: "v3" },
         { label: "360", v: "v4" },
       ] as const;
