@@ -22,3 +22,9 @@ export const getEpisodes = async function ({
     return [];
   }
 };
+
+// Ensure CommonJS compatibility for dynamic loaders
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = exports;
+}
+
