@@ -2,7 +2,7 @@ import axios from "axios";
 import * as cheerio from "cheerio";
 import { getPosts } from "../providers/turkmood/posts";
 import { getMeta } from "../providers/turkmood/meta";
-import { getEpisodeLinks } from "../providers/turkmood/episodes";
+import { getEpisodes } from "../providers/turkmood/episodes";
 import { getStream } from "../providers/turkmood/stream";
 
 const providerContext: any = {
@@ -53,8 +53,8 @@ async function test() {
   console.log("EpisodesLink:", seriesMeta.linkList[0].episodesLink);
 
   if (seriesMeta.linkList[0].episodesLink) {
-    console.log("\nTesting getEpisodeLinks...");
-    const episodes = await getEpisodeLinks({
+    console.log("\nTesting getEpisodes...");
+    const episodes = await getEpisodes({
       url: seriesMeta.linkList[0].episodesLink,
       providerContext
     });
