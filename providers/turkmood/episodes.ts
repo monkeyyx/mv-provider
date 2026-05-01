@@ -1,5 +1,7 @@
 import { EpisodeLink, ProviderContext } from "../types";
 
+console.log("TurkMood episodes module loading...");
+
 export async function getEpisodes({
   url,
   providerContext,
