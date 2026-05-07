@@ -12,14 +12,35 @@ export const getStream = async function ({
   providerContext: ProviderContext;
 }): Promise<Stream[]> {
   const { axios, commonHeaders } = providerContext;
+  let finalLink = link;
+
+  // If the link is an /eps/ page, we need to scrape the iframe first
+  if (link.includes("/eps/")) {
+    try {
+      const res = await axios.get(link, {
+        headers: {
+          ...commonHeaders,
+          Referer: "https://fanprojnet.com",
+        },
+        signal,
+      });
+      const html = res.data;
+      const iframeMatch = html.match(/iframe[^>]+src="([^"]+)"/);
+      if (iframeMatch) {
+        finalLink = iframeMatch[1];
+      }
+    } catch (error) {
+      console.error(`FanprojNet getStream Scrape Error: ${error}`);
+    }
+  }
 
   // link format: https://xamaali.cfd/video/[id] or https://idaawo.xyz/video/[id]
-  const idMatch = link.match(/\/video\/([a-zA-Z0-9]+)/);
+  const idMatch = finalLink.match(/\/video\/([a-zA-Z0-9]+)/);
   const id = idMatch ? idMatch[1] : "";
 
   if (!id) return [];
 
-  const host = new URL(link).origin;
+  const host = new URL(finalLink).origin;
   const playerUrl = `${host}/player/index.php?data=${id}&do=getVideo`;
 
   try {
@@ -30,7 +51,7 @@ export const getStream = async function ({
         ...commonHeaders,
         "Content-Type": "application/x-www-form-urlencoded",
         "X-Requested-With": "XMLHttpRequest",
-        Referer: link, // The player page itself
+        Referer: finalLink, // The player page itself
         Origin: host,
       },
       signal,

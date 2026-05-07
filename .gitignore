@@ -22,3 +22,8 @@ servers.txt
 note.md
 scratch/
 tests/
+DIRECT_SERVERS.md
+daawo.js
+debug_panda.js
+test_daawo.js
+test_env/

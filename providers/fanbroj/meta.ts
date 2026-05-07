@@ -3,6 +3,15 @@ import { Info, ProviderContext } from "../types";
 const DEFAULT_IMAGE =
   "https://placehold.jp/24/363636/ffffff/500x750.png?text=Fanbroj";
 
+const decodeHtml = (html: string) => {
+  return html.replace(/&#([0-9]+);/g, (_, dec) => String.fromCharCode(dec))
+             .replace(/&amp;/g, '&')
+             .replace(/&quot;/g, '"')
+             .replace(/&apos;/g, "'")
+             .replace(/&lt;/g, '<')
+             .replace(/&gt;/g, '>');
+};
+
 export const getMeta = async function ({
   link,
   provider,
@@ -12,78 +21,82 @@ export const getMeta = async function ({
   provider: string;
   providerContext: ProviderContext;
 }): Promise<Info> {
-  console.log(`[Fanbroj] Fetching Meta (v3.4.5) for: ${link}`);
+  console.log(`[FanprojNet] Fetching Meta for: ${link}`);
   const { axios, commonHeaders } = providerContext;
+  const baseUrl = "https://fanprojnet.com";
+  const apiBase = `${baseUrl}/wp-json/wp/v2`;
 
-  const baseUrl = "https://fanbroj.net";
+  const isSeries = link.includes("/tv/");
+  
+  const urlParts = link.replace(/\/$/, "").split("/");
+  const slug = urlParts.pop() || "";
 
-  // link format: /movies/[slug] or /series/[slug] or legacy /series_episodes.php?id=[id]
-  const isSeries =
-    link.includes("/series/") || link.includes("series_episodes.php");
-
-  // Extract slug/id
-  let slug = "";
-  if (link.includes("id=")) {
-    slug = link.split("id=")[1].split("&")[0];
-  } else {
-    slug = link.split("/").pop() || "";
-  }
-
-  let apiUrl = "";
-  if (isSeries) {
-    // If it's a numeric ID from legacy links, we might need a different logic,
-    // but for now we try to use it as a slug.
-    apiUrl = `${baseUrl}/api/series/${slug}`;
-  } else {
-    apiUrl = `${baseUrl}/api/movies?slug=${slug}`;
-  }
+  let apiUrl = isSeries
+    ? `${apiBase}/tv?slug=${slug}&_embed`
+    : `${apiBase}/posts?slug=${slug}&_embed`;
 
   try {
     const res = await axios.get(apiUrl, {
       headers: {
         ...commonHeaders,
         Referer: baseUrl,
-        "X-Requested-With": "XMLHttpRequest",
       },
     });
 
-    const data = res.data;
+    const dataArr = res.data;
+    const data = Array.isArray(dataArr) ? dataArr[0] : dataArr;
     if (!data) throw new Error("No data found");
 
+    const posterUrl =
+      data._embedded?.["wp:featuredmedia"]?.[0]?.source_url ||
+      data.jetpack_featured_media_url ||
+      DEFAULT_IMAGE;
+
     const info: Info = {
-      title: data.title || "",
-      image: data.posterUrl || data.backdropUrl || DEFAULT_IMAGE,
-      synopsis: data.overview || data.description || "",
-      imdbId: data.imdbId || "", // Might be empty, but that's okay
+      title: decodeHtml(data.title.rendered),
+      image: posterUrl,
+      synopsis: data.content.rendered.replace(/<[^>]*>?/gm, "").trim(),
+      imdbId: data.meta?.muviid || "", 
       type: isSeries ? "series" : "movie",
-      rating: data.rating?.toString(),
-      cast: data.cast?.map((c: any) => c.name),
+      rating: data.meta?.muvirating?.toString() || null,
+      cast: [],
       linkList: [],
     };
 
     if (isSeries) {
-      // For series, we provide an episodes link that will be handled by GetEpisodeLinks
       info.linkList.push({
         title: "Default",
-        episodesLink: link, // Pass the original link, GetEpisodeLinks will handle it
+        episodesLink: link,
       });
     } else {
-      // For movies, we provide direct links
-      const directLinks = (data.embeds || []).map((embed: any) => ({
-        title: embed.label || "Server",
-        link: embed.url,
-        type: "movie" as const,
-      }));
+      const directLinks: { title: string; link: string; type: "movie" }[] = [];
+      const meta = data.meta || {};
+      
+      for (let i = 1; i <= 10; i++) {
+        const playerHtml = meta[`IDMUVICORE_Player${i}`];
+        if (playerHtml && typeof playerHtml === 'string') {
+          const match = playerHtml.match(/src="([^"]+)"/);
+          if (match) {
+            directLinks.push({
+              title: meta[`IDMUVICORE_Title_Player${i}`] || `Server ${i}`,
+              link: match[1],
+              type: "movie" as const,
+            });
+          }
+        }
+      }
 
-      info.linkList.push({
-        title: "Default",
-        directLinks,
-      });
+      if (directLinks.length > 0) {
+        info.linkList.push({
+          title: "Default",
+          directLinks,
+        });
+      }
     }
 
     return info;
   } catch (error) {
-    console.error(`Fanbroj getMetaData Error: ${error}`);
+    console.error(`FanprojNet getMetaData Error: ${error}`);
     return {
       title: "",
       image: "",

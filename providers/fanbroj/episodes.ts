@@ -7,55 +7,61 @@ export const getEpisodes = async function ({
   url: string;
   providerContext: ProviderContext;
 }): Promise<EpisodeLink[]> {
-  console.log(`[Fanbroj] Fetching Episodes (v3.4.5) for: ${url}`);
+  console.log(`[FanprojNet] Fetching Episodes for: ${url}`);
   const { axios, commonHeaders } = providerContext;
-  const baseUrl = "https://fanbroj.net";
-
-  // url format: /series/[slug] or legacy /series_episodes.php?id=[id]
-  let slug = "";
-  if (url.includes("id=")) {
-    slug = url.split("id=")[1].split("&")[0];
-  } else {
-    slug = url.split("/").pop() || "";
-  }
-
-  const apiUrl = `${baseUrl}/api/series/${slug}/episodes`;
+  const baseUrl = "https://fanprojnet.com";
 
   try {
-    const res = await axios.get(apiUrl, {
+    const res = await axios.get(url, {
       headers: {
         ...commonHeaders,
         Referer: baseUrl,
-        "X-Requested-With": "XMLHttpRequest",
       },
     });
 
-    const data = res.data;
-    if (!data) return [];
+    const html = res.data;
+    if (!html) return [];
 
     const episodes: EpisodeLink[] = [];
-
-    // data is a map of season numbers to arrays of episodes
-    Object.keys(data).forEach((season) => {
-      const seasonEpisodes = data[season];
-      if (Array.isArray(seasonEpisodes)) {
-        seasonEpisodes.forEach((ep: any) => {
-          // If there are multiple embeds, we'll just use the first one for now
-          // or we could potentially return multiple links per episode if the interface supported it.
-          // Since EpisodeLink only has title and link, we'll use the embed URL directly.
-          if (ep.embeds && ep.embeds.length > 0) {
-            episodes.push({
-              title: `S${season} E${ep.episodeNumber}: ${ep.title}`,
-              link: ep.embeds[0].url, // This will be passed to getStream
-            });
-          }
+    
+    // Look for links like: https://fanprojnet.com/eps/esref-ruya-af-somali-season-1-episode-1/
+    // They are usually inside a <div class="gmr-listseries"> or similar
+    const linkRegex = /href="(https:\/\/fanprojnet\.com\/eps\/[^"]+)"[^>]*>([^<]+)<\/a>/g;
+    let match;
+    
+    while ((match = linkRegex.exec(html)) !== null) {
+      const epUrl = match[1];
+      const epTitle = match[2].trim();
+      
+      // Avoid duplicate links
+      if (!episodes.find(e => e.link === epUrl)) {
+        episodes.push({
+          title: epTitle,
+          link: epUrl,
         });
       }
-    });
+    }
 
+    // If no links found with the regex, try a more generic one
+    if (episodes.length === 0) {
+       const genericRegex = /https:\/\/fanprojnet\.com\/eps\/[a-zA-Z0-9-]+\//g;
+       const matches = html.match(genericRegex);
+       if (matches) {
+         matches.forEach((m: string, index: number) => {
+           if (!episodes.find(e => e.link === m)) {
+             episodes.push({
+               title: `Episode ${index + 1}`,
+               link: m,
+             });
+           }
+         });
+       }
+    }
+
+    // Re-order if needed (they are usually in order but sometimes reversed)
     return episodes;
   } catch (error) {
-    console.error(`Fanbroj getEpisodeLinks Error: ${error}`);
+    console.error(`FanprojNet getEpisodeLinks Error: ${error}`);
     return [];
   }
 };
